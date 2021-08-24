@@ -6,5 +6,5 @@ output:
 ---
 
 
-Add some text and a figure describing myself.
+Education and Background Training: 
 
