@@ -1,10 +1,173 @@
 ---
-title: "R coding Exercise"
+title: "Tzu-Chun's R coding Exercise"
 output: 
   html_document:
     toc: FALSE
 ---
 
-This will contain the future R coding exercise.
+Hello! For this week's exercise, I will explore the *gapminder* dataset that contains health and income outcomes from 184 countries between 1960 and 2016. This exercise will further evaluate any association between life expectancy and infant mortality or population size. 
+
+First, let's load all R packages that will be used for this exercise
+```{r, warning = F, message = F}
+## load R packages
+library(tidyverse) # tidyverse offers great tools for data wrangling and visualization
+library(scales) # to access break formatting functions
+library(dslabs) # to use the gapminder data from this package
+```
+
+I then loaded the *gapminder* data and checked the data strucutre, summary and class 
+```{r}
+#Use help to access to the documentation page for gapminder data
+help(gapminder)
+#get an overview of data structure
+str(gapminder)
+```
+
+```{r}
+#Here is the data summary
+summary(gapminder)
+```
+
+```{r}
+#determine the type of object gapminder is
+class(gapminder)
+```
+
+## Processing data
+Before working on some data visualization and fitting model. I ran a couple lines of code to create new objects and check their data structure and summary. First of all, I use *subset* function to select only African countries by specifying where the continent variable is "Africa", and named the object *africadata*. Next, I ran *str()* and *summary()* to see the structure and summary of both objects. 
+```{r}
+#assign African countries to a new object
+africadata <- subset(gapminder, continent == "Africa")
+
+#create two new objects
+imr.le <- africadata[,c("infant_mortality","life_expectancy")]#first one contains "infant_mortality" and "life_expectancy"
+pop.le <- africadata[,c("population","life_expectancy")]#first one contains "population " and "life_expectancy"
+```
+
+```{r}
+#get an overview of the data
+str(africadata)
+```
 
 
+```{r}
+#check the summary of the data
+summary(africadata)
+```
+
+
+```{r}
+#take a look at data structure and summary for the new object imr.le
+str(imr.le)
+summary(imr.le)
+```
+
+
+
+```{r}
+#take a look at data structure and summary for the new object pop.le
+str(pop.le)
+summary(pop.le)
+```
+
+## Plotting
+I used *ggplot()* to create two separate scatter plots from the objects I just created, The first one plotted life expectancy against infant mortality, while the second one plotted life expectancy against population size. 
+```{r}
+#scatter plot of infant mortality and life expectancy from 1960 to 2016
+imr.le %>% 
+  ggplot(aes(x=infant_mortality, y=life_expectancy)) +
+  geom_point() +
+  #add plot title
+  ggtitle("Relationship between infant mortality and life expectancy for African countries\n from 1960 to 2016") + 
+  #change x-axis label
+  xlab("Infant mortality (death per 1000)") + 
+  #change y-axis label
+  ylab("Life expectancy (years)") 
+```
+
+The plot shows that there was a negative correlation between infant mortality and life expectancy. 
+
+```{r}
+#scatterplot of population and life expectancy from 1960 to 2016
+pop.le %>% 
+  ggplot(aes(x=population, y=life_expectancy)) +
+  geom_point() +
+  #transform and reformat x-axis to log scale
+  scale_x_continuous(trans = 'log10',
+                     labels = trans_format("log10", math_format(10^.x))) + 
+  #add plot title
+  ggtitle("Relationship between population size and life expectancy for African countries\n from 1960 to 2016") + 
+  #change x-axis label
+  xlab("Population (log scale)") + 
+  #change y-axis label
+  ylab("Life expectancy (years)") 
+  
+```
+
+We can see that there were some streaks following a positive and linear trend between population and life expectancy. This could result from the source that mixed data from different countries across multiple years, so my next step is to try to avoid this noise and only look into the data from a particular year.
+
+## More data processing and plotting
+I grouped the data by year and summarized how many missing data in infant mortality across each year, then I filtered out only those years with missing data.
+```{r}
+#write code that figures out which years have missing data for infant mortality
+africadata %>% 
+      group_by(year) %>% 
+      summarise(infant_mortality_na = sum(is.na(infant_mortality))) %>% 
+      filter(infant_mortality_na > 0) #missing up to 1981 and 2016
+```
+There were some missing data in infant mortality from 1960 to 1981 and 2016 (n=226). Hence, I will only use the data from 2000 to create the same two plots again. 
+
+```{r}
+#create new object to extract data for 2000
+africadata2000 <- africadata[africadata$year == 2000,]
+
+#take a look at data structure and summary
+str(africadata2000)
+summary(africadata2000)
+```
+
+```{r}
+#scatterplot of infant mortality and life expectancy only for year of 2000
+africadata2000 %>% 
+  ggplot(aes(x=infant_mortality, y=life_expectancy)) +
+  geom_point() +
+  ggtitle("Relationship between infant mortality and life expectancy for African countries\n in 2000") + #add plot title
+  xlab("Infant mortality (death per 1000)") + #change x-axis label
+  ylab("Life expectancy (years)") #change y-axis label
+```
+
+We still observed a negative correlation between infant mortality and life expectancy from the data in 2000.
+
+```{r}
+#scatterplot of population and life expectancy only for year of 2000
+africadata2000 %>% 
+  ggplot(aes(x=population, y=life_expectancy)) +
+  geom_point() +
+  scale_x_continuous(trans = 'log10', breaks = trans_breaks("log10", function(x) 10^x),
+              labels = trans_format("log10", math_format(10^.x))) + #transform and reformat x-axis to log scale
+  ggtitle("Relationship between population size and life expectancy for African countries\n in 2000") + #add plot title
+  xlab("Population (log scale)") + #change x-axis label
+  ylab("Life expectancy (years)") #change y-axis label
+```
+
+However, we no longer saw any apparent correlation between population size and life expectancy when we looked into only the data in 2000.
+
+
+## Model fit
+The final step is to fit two linear regression models by regressing life expectancy on infant mortality and population size separately. 
+```{r}
+# fit a linear model to regress life expectancy on infant mortality using only 2000 data
+fit1 <- lm(life_expectancy ~ infant_mortality, data = africadata2000)
+summary(fit1)
+
+```
+# Conclusion
+The significant p-value (p=<0.0001) indicated a linear relationship between infant mortality and life expectancy, and the coefficient showed that the life expectancy goes down by `r round(abs(summary(fit1)$coefficient[2,1]),2)` for every 1 unit increase in infant mortality.   
+
+```{r}
+# fit a linear model to regress life expectancy on population size using only 2000 data
+fit2 <- lm(life_expectancy ~ population, data = africadata2000)
+summary(fit2)
+```
+# Conclusion
+The insignificant p-value (p=`r summary(fit2)$coefficient[2,4]`) and a coefficient close to zero indicated that an absence of linear association between population size and life expectancy. 

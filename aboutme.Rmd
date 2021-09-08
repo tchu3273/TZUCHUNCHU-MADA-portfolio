@@ -41,7 +41,7 @@ I primarily use R to conduct all my research work but I also write SAS and Stata
 <br />         
 
 </center>
-![fig_caption: Enjoy the beach day!](Leia_beach.jpg){width=30%}    ![fig_caption: Zoom meeting in progress](Leia_headset.jpg){width=30%}
+![fig_caption: Enjoy the beach day!](/Leia_beach.jpg){width=30%}    ![fig_caption: Zoom meeting in progress](Leia_headset.jpg){width=30%}
 </center>
 <br />
 <br />
