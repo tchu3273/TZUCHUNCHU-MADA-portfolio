@@ -171,3 +171,175 @@ summary(fit2)
 ```
 # Conclusion
 The insignificant p-value (p=`r summary(fit2)$coefficient[2,4]`) and a coefficient close to zero indicated that an absence of linear association between population size and life expectancy. 
+
+# More Analysis (by Savannah)
+I am interested in seeing a similar analysis to what we have already done with the Africa data, but this time apply it to other continents! 
+
+I will use one additional package, `broom`, to help present my output, so I'll load that now.
+```{r}
+library(broom)
+```
+
+
+First, I want to visualize the relationship between infant mortality and life expectancy, and I'll use colors to differentiate between the continents. 
+
+```{r}
+# Create an object with just the infant mortality, life expectancy, and continent data
+v1smh <- 
+  select(gapminder, infant_mortality, life_expectancy, continent)
+
+# Plot the data with different colors being different continents
+ggplot(data = v1smh, aes(infant_mortality, life_expectancy, color = continent)) +
+  geom_point() +
+  geom_smooth()  
+
+```
+
+This is pretty messy, and doesn't show much, so I want to try and visualize it a different way. 
+
+```{r}
+# Plotting the data the same way, this time with different continents each having their own plots 
+ggplot(data = v1smh, aes(infant_mortality, life_expectancy)) +
+  geom_point() +
+  geom_smooth() +
+  facet_wrap(~ continent)
+```
+This is a little more clear, and shows the same basic trend (which we would expect) - as infant mortality increases, life expectancy decreases. One noticible difference between the continents is Africa and Asia seem to have increased infant mortality as compared to the others. 
+
+Now I'll do the same thing with the population and life expectancy. 
+```{r}
+#Create another object, now with population instead of infant mortality 
+v2smh <- 
+  select(gapminder, population, life_expectancy, continent)
+
+# Plot the data with different colors being different continents, with population on a log scale 
+ggplot(data = v2smh, aes(population, life_expectancy, color = continent)) +
+  scale_x_continuous(trans = 'log10') +
+  geom_point() +
+  geom_smooth()  
+```
+
+Again, this is a MESS. Let's try it again. 
+
+```{r}
+# Plot life expectancy against log population
+ggplot(data = v2smh, aes(population, life_expectancy)) +
+  scale_x_continuous(trans = 'log10') +
+  geom_point() +
+  geom_smooth() +
+  facet_wrap(~ continent) +
+  xlab('Population (log scale)') +
+  ylab('Life Expectancy') 
+
+```
+
+
+Definitely more readable, but as with our first run-through on the analysis, there doesn't seem to be a true trend. I'm going to focus on this for an actual analysis. 
+
+First I want to see if there are any years that are missing data, so that I can choose one year to focus on without missing data. 
+
+```{r}
+# Create object that only contains missing population information according to year and continent 
+whatsmissing <- 
+  gapminder %>%
+  select(year, population, continent) %>%
+  filter(is.na(population))
+```
+
+2016 appears to be the only year with missing population data, so for consistency's sake, I'll use the year 2000 again. 
+
+```{r}
+#Create an object containing population, life expectancy, continent, and year data, and then narrow that down to only data from the year 2000 
+poplife2000 <- 
+  select(gapminder, population, life_expectancy, continent, year) %>%
+  filter(year == 2000)
+```
+
+Now I'll recreate the plots with the year 2000 data. 
+```{r}
+#Plot life expectancy against log population for the year 2000
+ggplot(data = poplife2000, aes(population, life_expectancy)) +
+  scale_x_continuous(trans = 'log10') +
+  geom_point() +
+  geom_smooth() +
+  facet_wrap(~ continent) +
+  xlab('Population (log scale)') +
+  ylab('Life Expectancy') 
+
+```
+
+
+Less cluttered, but not super clear. I'll run a simple linear regression to see if there's any significant relationship overall. 
+
+```{r}
+# Fit a simple linear model with population and life expectancy across all continents 
+fitall <- lm(life_expectancy ~ population, data = poplife2000)
+summary(fitall)
+tidy(fitall)
+```
+
+If we look at the relationship overall, there is _definitely_ no significant relationship here. What if we take it to individual continents?
+
+```{r}
+# Create object with just Africa from year 2000 data
+afr2000 <-
+  poplife2000 %>%
+  filter(continent == "Africa") 
+
+# Fit simple linear model with population and life expectancy for Africa 
+fitafr <- lm(life_expectancy ~ population, data = afr2000)
+summary(fitafr)
+tidy(fitafr)
+```
+
+```{r}
+# Create object with just Americas from year 2000 data
+ame2000 <-
+  poplife2000 %>%
+  filter(continent == "Americas") 
+
+# Fit simple linear model with population and life expectancy for Americas 
+fitame <- lm(life_expectancy ~ population, data = ame2000)
+summary(fitame)
+tidy(fitame)
+```
+
+```{r}
+# Create object with just Asia from year 2000 data
+asi2000 <-
+  poplife2000 %>%
+  filter(continent == "Asia") 
+
+# Fit simple linear model with population and life expectancy for Asia 
+fitasi <- lm(life_expectancy ~ population, data = asi2000)
+summary(fitasi)
+tidy(fitasi)
+```
+
+```{r}
+# Create object with just Europe from year 2000 data
+eur2000 <-
+  poplife2000 %>%
+  filter(continent == "Europe") 
+
+# Fit simple linear model with population and life expectancy for Europe 
+fiteur <- lm(life_expectancy ~ population, data = eur2000)
+summary(fiteur)
+tidy(fiteur)
+```
+
+
+```{r}
+# Create object with just Oceania from year 2000 data
+oci2000 <-
+  poplife2000 %>%
+  filter(continent == "Oceania") 
+
+# Fit simple linear model with population and life expectancy for Africa 
+fitoci <- lm(life_expectancy ~ population, data = oci2000)
+summary(fitoci)
+tidy(fitoci)
+```
+
+Unfortunately, it doesn't look like there are relationships, at least at this level. However, I think looking for these things is important, even if you don't find any statistical relationships! And it's always fun to do quick analyses to check! 
+
