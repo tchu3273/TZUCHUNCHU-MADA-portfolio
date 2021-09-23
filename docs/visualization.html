@@ -368,15 +368,16 @@ $(document).ready(function () {
 </div>
 
 
-<p>For Module 5 exercise, I am going to re-create a graph published on <strong>FiveThirtyEight</strong>. The original graph can be found in the article titled <a href="https://fivethirtyeight.com/features/the-media-really-has-neglected-puerto-rico/">“The Media Really Has Neglected Puerto Rico”</a>. Data were captured from Media Cloud, which includes number of sentences that mentioned the names of hurricane Harvey, Irma, Maria or Jose on each day from 8/20/2017 to 9/9/2017, and TV news that covered state of Texas, Florida or Puerto Rico were also collected in the same fashion. I also created an animated GIF to show you how the graph was re-created from start to finish!</p>
+<p>For Module 5 exercise, I am going to re-create a graph published on <strong>FiveThirtyEight</strong>. The original graph can be found in the article titled “The Media Really Has Neglected Puerto Rico”. Data were captured from Media Cloud, which includes number of sentences that mentioned the names of hurricane Harvey, Irma, Maria or Jose on each day from 8/20/2017 to 9/9/2017, and TV news that covered state of Texas, Florida or Puerto Rico were also collected in the same fashion. I presented the codes that broke down each step of what I did, and I also created an animated GIF to show you how the graph was re-created from start to finish!</p>
+<p><a href="https://fivethirtyeight.com/features/the-media-really-has-neglected-puerto-rico/">Link</a> to the article</p>
 <p><a href="https://data.fivethirtyeight.com/">Link</a> to the dataset</p>
 <p><a href="https://ezgif.com/maker">Link</a> to the website I used to create the animated GIF file</p>
-<div class="figure">
-<img src="Module-5-Visualization/mehta-hurricanemedia-1.png" alt="" />
-<p class="caption">Here is the original graph</p>
+<div id="here-is-the-original-graph" class="section level3">
+<h3>Here is the original graph</h3>
+<p><img src="Module-5-Visualization/mehta-hurricanemedia-1.png" /></p>
 </div>
-<div id="fun-animation-to-show-you-how-i-replicated-the-original-plot" class="section level2">
-<h2>Fun animation to show you how I replicated the original plot</h2>
+<div id="fun-animation-to-show-you-what-i-did-to-replicate-the-original-plot-in-5-seconds" class="section level3">
+<h3>Fun animation to show you what I did to replicate the original plot in 5 seconds</h3>
 <p><img src="Module-5-Visualization/results/ezgif.com-gif-maker.gif" /></p>
 </div>
 <div id="load-packages" class="section level2">
@@ -651,8 +652,8 @@ $(document).ready(function () {
 <span id="cb19-63"><a href="#cb19-63"></a><span class="kw">ggsave</span>(<span class="dt">filename =</span> figure_file, <span class="dt">plot=</span>plot<span class="fl">.4</span>, <span class="dt">width =</span> <span class="dv">10</span>, <span class="dt">height =</span> <span class="dv">5</span>, <span class="dt">dpi =</span> <span class="dv">300</span>) </span></code></pre></div>
 <p><img src="Module-5-Visualization/results/plot.4.png" /></p>
 </div>
-<div id="add-titles-and-annotation-in-the-plot" class="section level3">
-<h3>Add titles and annotation in the plot</h3>
+<div id="add-titles-annotation-in-the-plot-change-panel-border-and-remove-axis-ticks" class="section level3">
+<h3>Add titles, annotation in the plot, change panel border and remove axis ticks</h3>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>p1 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(hurricanes_data_long, <span class="kw">aes</span>(<span class="dt">x =</span> Date, <span class="dt">y =</span> Sent_per_d, <span class="dt">fill =</span> Hurricane)) <span class="op">+</span></span>
 <span id="cb20-2"><a href="#cb20-2"></a><span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">position =</span> <span class="st">&quot;dodge&quot;</span>) <span class="op">+</span></span>
 <span id="cb20-3"><a href="#cb20-3"></a><span class="st">  </span><span class="co"># change x-axis range to reflect the dates shown in the original plot</span></span>
@@ -669,105 +670,112 @@ $(document).ready(function () {
 <span id="cb20-14"><a href="#cb20-14"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>,</span>
 <span id="cb20-15"><a href="#cb20-15"></a>        <span class="co"># change panel background </span></span>
 <span id="cb20-16"><a href="#cb20-16"></a>        <span class="dt">panel.background =</span> <span class="kw">element_blank</span>(),</span>
-<span id="cb20-17"><a href="#cb20-17"></a>        <span class="dt">panel.border =</span> <span class="kw">element_rect</span>(<span class="dt">fill =</span> <span class="ot">NA</span>),</span>
-<span id="cb20-18"><a href="#cb20-18"></a>        <span class="dt">text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>),</span>
-<span id="cb20-19"><a href="#cb20-19"></a>        <span class="co"># only add grid lines on axis with labeled values and choose lighter grey color</span></span>
-<span id="cb20-20"><a href="#cb20-20"></a>        <span class="dt">panel.grid.major.x =</span> <span class="kw">element_line</span>(<span class="dt">color =</span> <span class="st">&quot;grey90&quot;</span>),</span>
-<span id="cb20-21"><a href="#cb20-21"></a>        <span class="dt">panel.grid.major.y =</span> <span class="kw">element_line</span>(<span class="dt">color =</span> <span class="st">&quot;grey90&quot;</span>),</span>
-<span id="cb20-22"><a href="#cb20-22"></a>        <span class="co"># change the color of axis texts to grey shade) +</span></span>
-<span id="cb20-23"><a href="#cb20-23"></a>        <span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">colour =</span> <span class="st">&quot;#B2B0B0&quot;</span>),</span>
-<span id="cb20-24"><a href="#cb20-24"></a>        <span class="dt">axis.text.y =</span> <span class="kw">element_text</span>(<span class="dt">colour =</span> <span class="st">&quot;#B2B0B0&quot;</span>)) <span class="op">+</span></span>
-<span id="cb20-25"><a href="#cb20-25"></a><span class="st">  </span><span class="co"># remove x-axis label</span></span>
-<span id="cb20-26"><a href="#cb20-26"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span></span>
-<span id="cb20-27"><a href="#cb20-27"></a><span class="st">  </span><span class="co"># change y-axis label</span></span>
-<span id="cb20-28"><a href="#cb20-28"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="kw">expression</span>(<span class="kw">bold</span>(<span class="st">&quot;Sentences per day&quot;</span>))) <span class="op">+</span></span>
-<span id="cb20-29"><a href="#cb20-29"></a><span class="st">  </span><span class="co"># add annotations </span></span>
-<span id="cb20-30"><a href="#cb20-30"></a><span class="st">  </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="kw">as.Date</span>(<span class="st">&quot;2017-08-26&quot;</span>), <span class="dt">y =</span> <span class="dv">2700</span>, </span>
-<span id="cb20-31"><a href="#cb20-31"></a>           <span class="dt">label =</span> <span class="st">&quot;Hurricane </span><span class="ch">\n</span><span class="st">Harvey&quot;</span>, </span>
-<span id="cb20-32"><a href="#cb20-32"></a>           <span class="dt">size =</span> <span class="dv">4</span>, </span>
-<span id="cb20-33"><a href="#cb20-33"></a>           <span class="dt">fontface =</span> <span class="st">&quot;bold&quot;</span>,</span>
-<span id="cb20-34"><a href="#cb20-34"></a>           <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>,</span>
-<span id="cb20-35"><a href="#cb20-35"></a>           <span class="dt">hjust =</span> <span class="dv">0</span>) <span class="op">+</span></span>
-<span id="cb20-36"><a href="#cb20-36"></a><span class="st">  </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="kw">as.Date</span>(<span class="st">&quot;2017-09-06&quot;</span>), <span class="dt">y =</span> <span class="dv">2700</span>, </span>
-<span id="cb20-37"><a href="#cb20-37"></a>           <span class="dt">label =</span> <span class="st">&quot;Hurricane </span><span class="ch">\n</span><span class="st">Irma&quot;</span>, </span>
-<span id="cb20-38"><a href="#cb20-38"></a>           <span class="dt">size =</span> <span class="dv">4</span>, </span>
-<span id="cb20-39"><a href="#cb20-39"></a>           <span class="dt">fontface =</span> <span class="st">&quot;bold&quot;</span>,</span>
-<span id="cb20-40"><a href="#cb20-40"></a>           <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>,</span>
-<span id="cb20-41"><a href="#cb20-41"></a>           <span class="dt">hjust =</span> <span class="dv">0</span>) <span class="op">+</span></span>
-<span id="cb20-42"><a href="#cb20-42"></a><span class="st">  </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="kw">as.Date</span>(<span class="st">&quot;2017-09-18&quot;</span>), <span class="dt">y =</span> <span class="dv">1000</span>, </span>
-<span id="cb20-43"><a href="#cb20-43"></a>           <span class="dt">label =</span> <span class="st">&quot;Hurricane </span><span class="ch">\n</span><span class="st">Maria&quot;</span>, </span>
-<span id="cb20-44"><a href="#cb20-44"></a>           <span class="dt">size =</span> <span class="dv">4</span>, </span>
-<span id="cb20-45"><a href="#cb20-45"></a>           <span class="dt">fontface =</span> <span class="st">&quot;bold&quot;</span>,</span>
-<span id="cb20-46"><a href="#cb20-46"></a>           <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>,</span>
-<span id="cb20-47"><a href="#cb20-47"></a>           <span class="dt">hjust =</span> <span class="dv">0</span>) </span>
-<span id="cb20-48"><a href="#cb20-48"></a></span>
-<span id="cb20-49"><a href="#cb20-49"></a>  </span>
-<span id="cb20-50"><a href="#cb20-50"></a><span class="co"># give a specific order for states</span></span>
-<span id="cb20-51"><a href="#cb20-51"></a>states_data_long<span class="op">$</span>States &lt;-<span class="st"> </span><span class="kw">factor</span>(states_data_long<span class="op">$</span>States , <span class="dt">levels=</span><span class="kw">c</span>(<span class="st">&quot;Texas&quot;</span>,<span class="st">&quot;Florida&quot;</span>,<span class="st">&quot;Puerto.Rico&quot;</span>) )</span>
-<span id="cb20-52"><a href="#cb20-52"></a>p2 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(states_data_long, <span class="kw">aes</span>(<span class="dt">x =</span> Date, <span class="dt">y =</span> Sent_per_d, <span class="dt">fill =</span> States)) <span class="op">+</span></span>
-<span id="cb20-53"><a href="#cb20-53"></a><span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">position =</span> <span class="st">&quot;dodge&quot;</span>) <span class="op">+</span></span>
-<span id="cb20-54"><a href="#cb20-54"></a><span class="st">  </span><span class="co"># change x-axis range to reflect the dates shown in the original plot</span></span>
-<span id="cb20-55"><a href="#cb20-55"></a><span class="st">  </span><span class="kw">scale_x_date</span>(<span class="dt">breaks =</span> <span class="kw">as.Date</span>(<span class="kw">c</span>(<span class="st">&quot;2017-08-20&quot;</span>,<span class="st">&quot;2017-08-27&quot;</span>,<span class="st">&quot;2017-09-03&quot;</span>,<span class="st">&quot;2017-09-10&quot;</span>,<span class="st">&quot;2017-09-17&quot;</span>)),</span>
-<span id="cb20-56"><a href="#cb20-56"></a>               <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;AUG.20.2017&quot;</span>,<span class="st">&quot;AUG.27&quot;</span>,<span class="st">&quot;SEPT.3&quot;</span>,<span class="st">&quot;SEPT.10&quot;</span>,<span class="st">&quot;SEPT.17&quot;</span>),</span>
-<span id="cb20-57"><a href="#cb20-57"></a>               <span class="dt">limits =</span> <span class="kw">as.Date</span>(<span class="kw">c</span>(<span class="st">&quot;2017-08-19&quot;</span>,<span class="st">&quot;2017-09-22&quot;</span>))) <span class="op">+</span><span class="st"> </span></span>
-<span id="cb20-58"><a href="#cb20-58"></a><span class="st">  </span><span class="co"># change y-axis scale</span></span>
-<span id="cb20-59"><a href="#cb20-59"></a><span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>,<span class="dv">4000</span>,<span class="dv">1000</span>),</span>
-<span id="cb20-60"><a href="#cb20-60"></a>                     <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;0&quot;</span>,<span class="st">&quot;1,000&quot;</span>,<span class="st">&quot;2,000&quot;</span>,<span class="st">&quot;3,000&quot;</span>,<span class="st">&quot;4,000&quot;</span>),</span>
-<span id="cb20-61"><a href="#cb20-61"></a>                     <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">5100</span>)) <span class="op">+</span></span>
-<span id="cb20-62"><a href="#cb20-62"></a><span class="st">  </span><span class="co"># change plot color</span></span>
-<span id="cb20-63"><a href="#cb20-63"></a><span class="st">  </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;#E66D0F&quot;</span>,<span class="st">&quot;#E34C82&quot;</span>,<span class="st">&quot;#52CBC6&quot;</span>)) <span class="op">+</span></span>
-<span id="cb20-64"><a href="#cb20-64"></a><span class="st">  </span><span class="co"># remove legend</span></span>
-<span id="cb20-65"><a href="#cb20-65"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>,</span>
-<span id="cb20-66"><a href="#cb20-66"></a>        <span class="co"># change panel background </span></span>
-<span id="cb20-67"><a href="#cb20-67"></a>        <span class="dt">panel.background =</span> <span class="kw">element_blank</span>(),</span>
-<span id="cb20-68"><a href="#cb20-68"></a>        <span class="dt">panel.border =</span> <span class="kw">element_rect</span>(<span class="dt">fill =</span> <span class="ot">NA</span>),</span>
-<span id="cb20-69"><a href="#cb20-69"></a>        <span class="dt">text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>),</span>
-<span id="cb20-70"><a href="#cb20-70"></a>        <span class="co"># only add grid lines on axis with labeled values and choose lighter grey color</span></span>
-<span id="cb20-71"><a href="#cb20-71"></a>        <span class="dt">panel.grid.major.x =</span> <span class="kw">element_line</span>(<span class="dt">color =</span> <span class="st">&quot;grey90&quot;</span>),</span>
-<span id="cb20-72"><a href="#cb20-72"></a>        <span class="dt">panel.grid.major.y =</span> <span class="kw">element_line</span>(<span class="dt">color =</span> <span class="st">&quot;grey90&quot;</span>),</span>
-<span id="cb20-73"><a href="#cb20-73"></a>        <span class="co"># change the color of axis texts to grey shade) +</span></span>
-<span id="cb20-74"><a href="#cb20-74"></a>        <span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">colour =</span> <span class="st">&quot;#B2B0B0&quot;</span>),</span>
-<span id="cb20-75"><a href="#cb20-75"></a>        <span class="dt">axis.text.y =</span> <span class="kw">element_text</span>(<span class="dt">colour =</span> <span class="st">&quot;#B2B0B0&quot;</span>)) <span class="op">+</span></span>
-<span id="cb20-76"><a href="#cb20-76"></a><span class="st">  </span><span class="co"># remove x-axis label</span></span>
-<span id="cb20-77"><a href="#cb20-77"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span></span>
-<span id="cb20-78"><a href="#cb20-78"></a><span class="st">  </span><span class="co"># remove y-axis label</span></span>
-<span id="cb20-79"><a href="#cb20-79"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span></span>
-<span id="cb20-80"><a href="#cb20-80"></a><span class="st">  </span><span class="co"># add annotations </span></span>
-<span id="cb20-81"><a href="#cb20-81"></a><span class="st">  </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="kw">as.Date</span>(<span class="st">&quot;2017-08-23&quot;</span>), <span class="dt">y =</span> <span class="dv">4800</span>, </span>
-<span id="cb20-82"><a href="#cb20-82"></a>           <span class="dt">label =</span> <span class="st">&quot;Texas&quot;</span>, </span>
-<span id="cb20-83"><a href="#cb20-83"></a>           <span class="dt">size =</span> <span class="dv">4</span>, </span>
-<span id="cb20-84"><a href="#cb20-84"></a>           <span class="dt">fontface =</span> <span class="st">&quot;bold&quot;</span>,</span>
-<span id="cb20-85"><a href="#cb20-85"></a>           <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>,</span>
-<span id="cb20-86"><a href="#cb20-86"></a>           <span class="dt">hjust =</span> <span class="dv">0</span>) <span class="op">+</span></span>
-<span id="cb20-87"><a href="#cb20-87"></a><span class="st">  </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="kw">as.Date</span>(<span class="st">&quot;2017-09-04&quot;</span>), <span class="dt">y =</span> <span class="dv">3600</span>, </span>
-<span id="cb20-88"><a href="#cb20-88"></a>           <span class="dt">label =</span> <span class="st">&quot;Florida&quot;</span>, </span>
-<span id="cb20-89"><a href="#cb20-89"></a>           <span class="dt">size =</span> <span class="dv">4</span>, </span>
-<span id="cb20-90"><a href="#cb20-90"></a>           <span class="dt">fontface =</span> <span class="st">&quot;bold&quot;</span>,</span>
-<span id="cb20-91"><a href="#cb20-91"></a>           <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>,</span>
-<span id="cb20-92"><a href="#cb20-92"></a>           <span class="dt">hjust =</span> <span class="dv">0</span>) <span class="op">+</span></span>
-<span id="cb20-93"><a href="#cb20-93"></a><span class="st">  </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="kw">as.Date</span>(<span class="st">&quot;2017-09-16&quot;</span>), <span class="dt">y =</span> <span class="dv">1700</span>, </span>
-<span id="cb20-94"><a href="#cb20-94"></a>           <span class="dt">label =</span> <span class="st">&quot;Puerto Rico&quot;</span>, </span>
-<span id="cb20-95"><a href="#cb20-95"></a>           <span class="dt">size =</span> <span class="dv">4</span>, </span>
-<span id="cb20-96"><a href="#cb20-96"></a>           <span class="dt">fontface =</span> <span class="st">&quot;bold&quot;</span>,</span>
-<span id="cb20-97"><a href="#cb20-97"></a>           <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>,</span>
-<span id="cb20-98"><a href="#cb20-98"></a>           <span class="dt">hjust =</span> <span class="dv">0</span>) </span>
-<span id="cb20-99"><a href="#cb20-99"></a></span>
-<span id="cb20-100"><a href="#cb20-100"></a></span>
-<span id="cb20-101"><a href="#cb20-101"></a><span class="co"># combine plots together</span></span>
-<span id="cb20-102"><a href="#cb20-102"></a>plot<span class="fl">.5</span> &lt;-<span class="st"> </span><span class="kw">ggarrange</span>(p1, p2, <span class="dt">nrow =</span> <span class="dv">1</span>)</span>
-<span id="cb20-103"><a href="#cb20-103"></a></span>
-<span id="cb20-104"><a href="#cb20-104"></a><span class="co"># add common title to the combined plot</span></span>
-<span id="cb20-105"><a href="#cb20-105"></a><span class="co"># first construct plotmath expression, add subtitles as separate lines with smaller font</span></span>
-<span id="cb20-106"><a href="#cb20-106"></a>title &lt;-<span class="st"> </span><span class="kw">expression</span>(<span class="kw">atop</span>(<span class="kw">bold</span>(<span class="st">&quot;Hurricane Maria and Puerto Rico got comparitively little online coverage&quot;</span>), </span>
-<span id="cb20-107"><a href="#cb20-107"></a>                         <span class="kw">scriptstyle</span>(<span class="kw">italic</span>(<span class="st">&quot;Number of sentences menitoring each hurricane and the place it made landfall, </span><span class="ch">\n</span><span class="st">among outlets in Media Cloud&#39;s </span><span class="ch">\&quot;</span><span class="st">U.S. Top Online News</span><span class="ch">\&quot;</span><span class="st"> collection&quot;</span>))))</span>
-<span id="cb20-108"><a href="#cb20-108"></a>                         </span>
-<span id="cb20-109"><a href="#cb20-109"></a>plot.<span class="fl">5.</span>title &lt;-<span class="st"> </span><span class="kw">annotate_figure</span>(plot<span class="fl">.5</span>,</span>
-<span id="cb20-110"><a href="#cb20-110"></a>                          <span class="dt">top=</span><span class="kw">text_grob</span>(title))</span>
+<span id="cb20-17"><a href="#cb20-17"></a>        <span class="dt">text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>),</span>
+<span id="cb20-18"><a href="#cb20-18"></a>        <span class="co"># only add grid lines on axis with labeled values and choose lighter grey color</span></span>
+<span id="cb20-19"><a href="#cb20-19"></a>        <span class="dt">panel.grid.major.x =</span> <span class="kw">element_line</span>(<span class="dt">color =</span> <span class="st">&quot;grey90&quot;</span>),</span>
+<span id="cb20-20"><a href="#cb20-20"></a>        <span class="dt">panel.grid.major.y =</span> <span class="kw">element_line</span>(<span class="dt">color =</span> <span class="st">&quot;grey90&quot;</span>),</span>
+<span id="cb20-21"><a href="#cb20-21"></a>        <span class="co"># change the color of axis texts to grey shade) +</span></span>
+<span id="cb20-22"><a href="#cb20-22"></a>        <span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">colour =</span> <span class="st">&quot;#B2B0B0&quot;</span>),</span>
+<span id="cb20-23"><a href="#cb20-23"></a>        <span class="dt">axis.text.y =</span> <span class="kw">element_text</span>(<span class="dt">colour =</span> <span class="st">&quot;#B2B0B0&quot;</span>),</span>
+<span id="cb20-24"><a href="#cb20-24"></a>        <span class="co"># remove panel border and create only border on x-axis</span></span>
+<span id="cb20-25"><a href="#cb20-25"></a>        <span class="dt">panel.border =</span> <span class="kw">element_blank</span>(),</span>
+<span id="cb20-26"><a href="#cb20-26"></a>        <span class="dt">axis.line.x    =</span> <span class="kw">element_line</span>(<span class="dt">color=</span><span class="st">&#39;black&#39;</span>),</span>
+<span id="cb20-27"><a href="#cb20-27"></a>        <span class="co"># remove axis ticks</span></span>
+<span id="cb20-28"><a href="#cb20-28"></a>        <span class="dt">axis.ticks =</span> <span class="kw">element_blank</span>()) <span class="op">+</span></span>
+<span id="cb20-29"><a href="#cb20-29"></a><span class="st">  </span><span class="co"># remove x-axis label</span></span>
+<span id="cb20-30"><a href="#cb20-30"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span></span>
+<span id="cb20-31"><a href="#cb20-31"></a><span class="st">  </span><span class="co"># change y-axis label</span></span>
+<span id="cb20-32"><a href="#cb20-32"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="kw">expression</span>(<span class="kw">bold</span>(<span class="st">&quot;Sentences per day&quot;</span>))) <span class="op">+</span></span>
+<span id="cb20-33"><a href="#cb20-33"></a><span class="st">  </span><span class="co"># add annotations </span></span>
+<span id="cb20-34"><a href="#cb20-34"></a><span class="st">  </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="kw">as.Date</span>(<span class="st">&quot;2017-08-26&quot;</span>), <span class="dt">y =</span> <span class="dv">2700</span>, </span>
+<span id="cb20-35"><a href="#cb20-35"></a>           <span class="dt">label =</span> <span class="st">&quot;Hurricane </span><span class="ch">\n</span><span class="st">Harvey&quot;</span>, </span>
+<span id="cb20-36"><a href="#cb20-36"></a>           <span class="dt">size =</span> <span class="dv">4</span>, </span>
+<span id="cb20-37"><a href="#cb20-37"></a>           <span class="dt">fontface =</span> <span class="st">&quot;bold&quot;</span>,</span>
+<span id="cb20-38"><a href="#cb20-38"></a>           <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>,</span>
+<span id="cb20-39"><a href="#cb20-39"></a>           <span class="dt">hjust =</span> <span class="dv">0</span>) <span class="op">+</span></span>
+<span id="cb20-40"><a href="#cb20-40"></a><span class="st">  </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="kw">as.Date</span>(<span class="st">&quot;2017-09-06&quot;</span>), <span class="dt">y =</span> <span class="dv">2700</span>, </span>
+<span id="cb20-41"><a href="#cb20-41"></a>           <span class="dt">label =</span> <span class="st">&quot;Hurricane </span><span class="ch">\n</span><span class="st">Irma&quot;</span>, </span>
+<span id="cb20-42"><a href="#cb20-42"></a>           <span class="dt">size =</span> <span class="dv">4</span>, </span>
+<span id="cb20-43"><a href="#cb20-43"></a>           <span class="dt">fontface =</span> <span class="st">&quot;bold&quot;</span>,</span>
+<span id="cb20-44"><a href="#cb20-44"></a>           <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>,</span>
+<span id="cb20-45"><a href="#cb20-45"></a>           <span class="dt">hjust =</span> <span class="dv">0</span>) <span class="op">+</span></span>
+<span id="cb20-46"><a href="#cb20-46"></a><span class="st">  </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="kw">as.Date</span>(<span class="st">&quot;2017-09-18&quot;</span>), <span class="dt">y =</span> <span class="dv">1000</span>, </span>
+<span id="cb20-47"><a href="#cb20-47"></a>           <span class="dt">label =</span> <span class="st">&quot;Hurricane </span><span class="ch">\n</span><span class="st">Maria&quot;</span>, </span>
+<span id="cb20-48"><a href="#cb20-48"></a>           <span class="dt">size =</span> <span class="dv">4</span>, </span>
+<span id="cb20-49"><a href="#cb20-49"></a>           <span class="dt">fontface =</span> <span class="st">&quot;bold&quot;</span>,</span>
+<span id="cb20-50"><a href="#cb20-50"></a>           <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>,</span>
+<span id="cb20-51"><a href="#cb20-51"></a>           <span class="dt">hjust =</span> <span class="dv">0</span>) </span>
+<span id="cb20-52"><a href="#cb20-52"></a></span>
+<span id="cb20-53"><a href="#cb20-53"></a>  </span>
+<span id="cb20-54"><a href="#cb20-54"></a><span class="co"># give a specific order for states</span></span>
+<span id="cb20-55"><a href="#cb20-55"></a>states_data_long<span class="op">$</span>States &lt;-<span class="st"> </span><span class="kw">factor</span>(states_data_long<span class="op">$</span>States , <span class="dt">levels=</span><span class="kw">c</span>(<span class="st">&quot;Texas&quot;</span>,<span class="st">&quot;Florida&quot;</span>,<span class="st">&quot;Puerto.Rico&quot;</span>) )</span>
+<span id="cb20-56"><a href="#cb20-56"></a>p2 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(states_data_long, <span class="kw">aes</span>(<span class="dt">x =</span> Date, <span class="dt">y =</span> Sent_per_d, <span class="dt">fill =</span> States)) <span class="op">+</span></span>
+<span id="cb20-57"><a href="#cb20-57"></a><span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">position =</span> <span class="st">&quot;dodge&quot;</span>) <span class="op">+</span></span>
+<span id="cb20-58"><a href="#cb20-58"></a><span class="st">  </span><span class="co"># change x-axis range to reflect the dates shown in the original plot</span></span>
+<span id="cb20-59"><a href="#cb20-59"></a><span class="st">  </span><span class="kw">scale_x_date</span>(<span class="dt">breaks =</span> <span class="kw">as.Date</span>(<span class="kw">c</span>(<span class="st">&quot;2017-08-20&quot;</span>,<span class="st">&quot;2017-08-27&quot;</span>,<span class="st">&quot;2017-09-03&quot;</span>,<span class="st">&quot;2017-09-10&quot;</span>,<span class="st">&quot;2017-09-17&quot;</span>)),</span>
+<span id="cb20-60"><a href="#cb20-60"></a>               <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;AUG.20.2017&quot;</span>,<span class="st">&quot;AUG.27&quot;</span>,<span class="st">&quot;SEPT.3&quot;</span>,<span class="st">&quot;SEPT.10&quot;</span>,<span class="st">&quot;SEPT.17&quot;</span>),</span>
+<span id="cb20-61"><a href="#cb20-61"></a>               <span class="dt">limits =</span> <span class="kw">as.Date</span>(<span class="kw">c</span>(<span class="st">&quot;2017-08-19&quot;</span>,<span class="st">&quot;2017-09-22&quot;</span>))) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb20-62"><a href="#cb20-62"></a><span class="st">  </span><span class="co"># change y-axis scale</span></span>
+<span id="cb20-63"><a href="#cb20-63"></a><span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>,<span class="dv">4000</span>,<span class="dv">1000</span>),</span>
+<span id="cb20-64"><a href="#cb20-64"></a>                     <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;0&quot;</span>,<span class="st">&quot;1,000&quot;</span>,<span class="st">&quot;2,000&quot;</span>,<span class="st">&quot;3,000&quot;</span>,<span class="st">&quot;4,000&quot;</span>),</span>
+<span id="cb20-65"><a href="#cb20-65"></a>                     <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">5100</span>)) <span class="op">+</span></span>
+<span id="cb20-66"><a href="#cb20-66"></a><span class="st">  </span><span class="co"># change plot color</span></span>
+<span id="cb20-67"><a href="#cb20-67"></a><span class="st">  </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;#E66D0F&quot;</span>,<span class="st">&quot;#E34C82&quot;</span>,<span class="st">&quot;#52CBC6&quot;</span>)) <span class="op">+</span></span>
+<span id="cb20-68"><a href="#cb20-68"></a><span class="st">  </span><span class="co"># remove legend</span></span>
+<span id="cb20-69"><a href="#cb20-69"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>,</span>
+<span id="cb20-70"><a href="#cb20-70"></a>        <span class="co"># change panel background </span></span>
+<span id="cb20-71"><a href="#cb20-71"></a>        <span class="dt">panel.background =</span> <span class="kw">element_blank</span>(),</span>
+<span id="cb20-72"><a href="#cb20-72"></a>        <span class="dt">text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>),</span>
+<span id="cb20-73"><a href="#cb20-73"></a>        <span class="co"># only add grid lines on axis with labeled values and choose lighter grey color</span></span>
+<span id="cb20-74"><a href="#cb20-74"></a>        <span class="dt">panel.grid.major.x =</span> <span class="kw">element_line</span>(<span class="dt">color =</span> <span class="st">&quot;grey90&quot;</span>),</span>
+<span id="cb20-75"><a href="#cb20-75"></a>        <span class="dt">panel.grid.major.y =</span> <span class="kw">element_line</span>(<span class="dt">color =</span> <span class="st">&quot;grey90&quot;</span>),</span>
+<span id="cb20-76"><a href="#cb20-76"></a>        <span class="co"># change the color of axis texts to grey shade) +</span></span>
+<span id="cb20-77"><a href="#cb20-77"></a>        <span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">colour =</span> <span class="st">&quot;#B2B0B0&quot;</span>),</span>
+<span id="cb20-78"><a href="#cb20-78"></a>        <span class="dt">axis.text.y =</span> <span class="kw">element_text</span>(<span class="dt">colour =</span> <span class="st">&quot;#B2B0B0&quot;</span>),</span>
+<span id="cb20-79"><a href="#cb20-79"></a>        <span class="co"># remove panel border and create only border on x-axis</span></span>
+<span id="cb20-80"><a href="#cb20-80"></a>        <span class="dt">panel.border =</span> <span class="kw">element_blank</span>(),</span>
+<span id="cb20-81"><a href="#cb20-81"></a>        <span class="dt">axis.line.x    =</span> <span class="kw">element_line</span>(<span class="dt">color=</span><span class="st">&#39;black&#39;</span>),</span>
+<span id="cb20-82"><a href="#cb20-82"></a>        <span class="co"># remove axis ticks</span></span>
+<span id="cb20-83"><a href="#cb20-83"></a>        <span class="dt">axis.ticks =</span> <span class="kw">element_blank</span>()) <span class="op">+</span></span>
+<span id="cb20-84"><a href="#cb20-84"></a><span class="st">  </span><span class="co"># remove x-axis label</span></span>
+<span id="cb20-85"><a href="#cb20-85"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span></span>
+<span id="cb20-86"><a href="#cb20-86"></a><span class="st">  </span><span class="co"># remove y-axis label</span></span>
+<span id="cb20-87"><a href="#cb20-87"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span></span>
+<span id="cb20-88"><a href="#cb20-88"></a><span class="st">  </span><span class="co"># add annotations </span></span>
+<span id="cb20-89"><a href="#cb20-89"></a><span class="st">  </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="kw">as.Date</span>(<span class="st">&quot;2017-08-23&quot;</span>), <span class="dt">y =</span> <span class="dv">4800</span>, </span>
+<span id="cb20-90"><a href="#cb20-90"></a>           <span class="dt">label =</span> <span class="st">&quot;Texas&quot;</span>, </span>
+<span id="cb20-91"><a href="#cb20-91"></a>           <span class="dt">size =</span> <span class="dv">4</span>, </span>
+<span id="cb20-92"><a href="#cb20-92"></a>           <span class="dt">fontface =</span> <span class="st">&quot;bold&quot;</span>,</span>
+<span id="cb20-93"><a href="#cb20-93"></a>           <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>,</span>
+<span id="cb20-94"><a href="#cb20-94"></a>           <span class="dt">hjust =</span> <span class="dv">0</span>) <span class="op">+</span></span>
+<span id="cb20-95"><a href="#cb20-95"></a><span class="st">  </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="kw">as.Date</span>(<span class="st">&quot;2017-09-04&quot;</span>), <span class="dt">y =</span> <span class="dv">3600</span>, </span>
+<span id="cb20-96"><a href="#cb20-96"></a>           <span class="dt">label =</span> <span class="st">&quot;Florida&quot;</span>, </span>
+<span id="cb20-97"><a href="#cb20-97"></a>           <span class="dt">size =</span> <span class="dv">4</span>, </span>
+<span id="cb20-98"><a href="#cb20-98"></a>           <span class="dt">fontface =</span> <span class="st">&quot;bold&quot;</span>,</span>
+<span id="cb20-99"><a href="#cb20-99"></a>           <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>,</span>
+<span id="cb20-100"><a href="#cb20-100"></a>           <span class="dt">hjust =</span> <span class="dv">0</span>) <span class="op">+</span></span>
+<span id="cb20-101"><a href="#cb20-101"></a><span class="st">  </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="kw">as.Date</span>(<span class="st">&quot;2017-09-16&quot;</span>), <span class="dt">y =</span> <span class="dv">1700</span>, </span>
+<span id="cb20-102"><a href="#cb20-102"></a>           <span class="dt">label =</span> <span class="st">&quot;Puerto Rico&quot;</span>, </span>
+<span id="cb20-103"><a href="#cb20-103"></a>           <span class="dt">size =</span> <span class="dv">4</span>, </span>
+<span id="cb20-104"><a href="#cb20-104"></a>           <span class="dt">fontface =</span> <span class="st">&quot;bold&quot;</span>,</span>
+<span id="cb20-105"><a href="#cb20-105"></a>           <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>,</span>
+<span id="cb20-106"><a href="#cb20-106"></a>           <span class="dt">hjust =</span> <span class="dv">0</span>) </span>
+<span id="cb20-107"><a href="#cb20-107"></a></span>
+<span id="cb20-108"><a href="#cb20-108"></a></span>
+<span id="cb20-109"><a href="#cb20-109"></a><span class="co"># combine plots together</span></span>
+<span id="cb20-110"><a href="#cb20-110"></a>plot<span class="fl">.5</span> &lt;-<span class="st"> </span><span class="kw">ggarrange</span>(p1, p2, <span class="dt">nrow =</span> <span class="dv">1</span>)</span>
 <span id="cb20-111"><a href="#cb20-111"></a></span>
-<span id="cb20-112"><a href="#cb20-112"></a><span class="co">#save figure</span></span>
-<span id="cb20-113"><a href="#cb20-113"></a>figure_file =<span class="st"> </span>here<span class="op">::</span><span class="kw">here</span>(<span class="st">&quot;Module-5-Visualization&quot;</span>,<span class="st">&quot;results&quot;</span>,<span class="st">&quot;plot.5.png&quot;</span>)</span>
-<span id="cb20-114"><a href="#cb20-114"></a><span class="kw">ggsave</span>(<span class="dt">filename =</span> figure_file, <span class="dt">plot=</span>plot.<span class="fl">5.</span>title, <span class="dt">width =</span> <span class="dv">10</span>, <span class="dt">height =</span> <span class="dv">5</span>, <span class="dt">dpi =</span> <span class="dv">300</span>)  </span></code></pre></div>
-<p><img src="Module-5-Visualization/results/plot.5.png" /></p>
+<span id="cb20-112"><a href="#cb20-112"></a><span class="co"># add common title to the combined plot</span></span>
+<span id="cb20-113"><a href="#cb20-113"></a><span class="co"># first construct plotmath expression, add subtitles as separate lines with smaller font</span></span>
+<span id="cb20-114"><a href="#cb20-114"></a>title &lt;-<span class="st"> </span><span class="kw">expression</span>(<span class="kw">atop</span>(<span class="kw">bold</span>(<span class="st">&quot;Hurricane Maria and Puerto Rico got comparitively little online coverage&quot;</span>), </span>
+<span id="cb20-115"><a href="#cb20-115"></a>                         <span class="kw">scriptstyle</span>(<span class="kw">italic</span>(<span class="st">&quot;Number of sentences menitoring each hurricane and the place it made landfall, </span><span class="ch">\n</span><span class="st">among outlets in Media Cloud&#39;s </span><span class="ch">\&quot;</span><span class="st">U.S. Top Online News</span><span class="ch">\&quot;</span><span class="st"> collection&quot;</span>))))</span>
+<span id="cb20-116"><a href="#cb20-116"></a>                         </span>
+<span id="cb20-117"><a href="#cb20-117"></a>plot.<span class="fl">5.</span>title &lt;-<span class="st"> </span><span class="kw">annotate_figure</span>(plot<span class="fl">.5</span>,</span>
+<span id="cb20-118"><a href="#cb20-118"></a>                          <span class="dt">top=</span><span class="kw">text_grob</span>(title))</span>
+<span id="cb20-119"><a href="#cb20-119"></a></span>
+<span id="cb20-120"><a href="#cb20-120"></a><span class="co">#save figure</span></span>
+<span id="cb20-121"><a href="#cb20-121"></a>figure_file =<span class="st"> </span>here<span class="op">::</span><span class="kw">here</span>(<span class="st">&quot;Module-5-Visualization&quot;</span>,<span class="st">&quot;results&quot;</span>,<span class="st">&quot;plot.5.png&quot;</span>)</span>
+<span id="cb20-122"><a href="#cb20-122"></a><span class="kw">ggsave</span>(<span class="dt">filename =</span> figure_file, <span class="dt">plot=</span>plot.<span class="fl">5.</span>title, <span class="dt">width =</span> <span class="dv">10</span>, <span class="dt">height =</span> <span class="dv">5</span>, <span class="dt">dpi =</span> <span class="dv">300</span>)  </span></code></pre></div>
 </div>
 </div>
 <div id="the-final-look-of-the-replicated-plot" class="section level2">

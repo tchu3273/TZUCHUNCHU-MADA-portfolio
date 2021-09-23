@@ -5,7 +5,9 @@ output:
     toc: FALSE
 ---
 
-For Module 5 exercise, I am going to re-create a graph published on **FiveThirtyEight**. The original graph can be found in the article titled ["The Media Really Has Neglected Puerto Rico"](https://fivethirtyeight.com/features/the-media-really-has-neglected-puerto-rico/). Data were captured from Media Cloud, which includes number of sentences that mentioned the names of hurricane Harvey, Irma, Maria or Jose on each day from 8/20/2017 to 9/9/2017, and TV news that covered state of Texas, Florida or Puerto Rico were also collected in the same fashion. I also created an animated GIF to show you how the graph was re-created from start to finish!
+For Module 5 exercise, I am going to re-create a graph published on **FiveThirtyEight**. The original graph can be found in the article titled "The Media Really Has Neglected Puerto Rico". Data were captured from Media Cloud, which includes number of sentences that mentioned the names of hurricane Harvey, Irma, Maria or Jose on each day from 8/20/2017 to 9/9/2017, and TV news that covered state of Texas, Florida or Puerto Rico were also collected in the same fashion. I presented the codes that broke down each step of what I did, and I also created an animated GIF to show you how the graph was re-created from start to finish!
+
+[Link](https://fivethirtyeight.com/features/the-media-really-has-neglected-puerto-rico/) to the article
 
 [Link](https://data.fivethirtyeight.com/) to the dataset
 
@@ -277,7 +279,7 @@ ggsave(filename = figure_file, plot=plot.4, width = 10, height = 5, dpi = 300)
 ![](Module-5-Visualization/results/plot.4.png)
 
 
-### Add titles and annotation in the plot
+### Add titles, annotation in the plot, change panel border and remove axis ticks
 ```{r, warning = F}
 p1 <- ggplot(hurricanes_data_long, aes(x = Date, y = Sent_per_d, fill = Hurricane)) +
   geom_area(position = "dodge") +
@@ -295,14 +297,18 @@ p1 <- ggplot(hurricanes_data_long, aes(x = Date, y = Sent_per_d, fill = Hurrican
   theme(legend.position = "none",
         # change panel background 
         panel.background = element_blank(),
-        panel.border = element_rect(fill = NA),
         text = element_text(size = 10),
         # only add grid lines on axis with labeled values and choose lighter grey color
         panel.grid.major.x = element_line(color = "grey90"),
         panel.grid.major.y = element_line(color = "grey90"),
         # change the color of axis texts to grey shade) +
         axis.text.x = element_text(colour = "#B2B0B0"),
-        axis.text.y = element_text(colour = "#B2B0B0")) +
+        axis.text.y = element_text(colour = "#B2B0B0"),
+        # remove panel border and create only border on x-axis
+        panel.border = element_blank(),
+        axis.line.x    = element_line(color='black'),
+        # remove axis ticks
+        axis.ticks = element_blank()) +
   # remove x-axis label
   xlab("") +
   # change y-axis label
@@ -346,14 +352,18 @@ p2 <- ggplot(states_data_long, aes(x = Date, y = Sent_per_d, fill = States)) +
   theme(legend.position = "none",
         # change panel background 
         panel.background = element_blank(),
-        panel.border = element_rect(fill = NA),
         text = element_text(size = 10),
         # only add grid lines on axis with labeled values and choose lighter grey color
         panel.grid.major.x = element_line(color = "grey90"),
         panel.grid.major.y = element_line(color = "grey90"),
         # change the color of axis texts to grey shade) +
         axis.text.x = element_text(colour = "#B2B0B0"),
-        axis.text.y = element_text(colour = "#B2B0B0")) +
+        axis.text.y = element_text(colour = "#B2B0B0"),
+        # remove panel border and create only border on x-axis
+        panel.border = element_blank(),
+        axis.line.x    = element_line(color='black'),
+        # remove axis ticks
+        axis.ticks = element_blank()) +
   # remove x-axis label
   xlab("") +
   # remove y-axis label
@@ -394,9 +404,6 @@ plot.5.title <- annotate_figure(plot.5,
 figure_file = here::here("Module-5-Visualization","results","plot.5.png")
 ggsave(filename = figure_file, plot=plot.5.title, width = 10, height = 5, dpi = 300)  
 ```
-
-
-![](Module-5-Visualization/results/plot.5.png)
 
 
 ## The final look of the replicated plot
