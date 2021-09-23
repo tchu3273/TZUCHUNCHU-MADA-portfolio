@@ -15,7 +15,6 @@ For Module 5 exercise, I am going to re-create a graph published on **FiveThirty
 ![](Module-5-Visualization/mehta-hurricanemedia-1.png)
 
 
-
 ### Fun animation to show you what I did to replicate the original plot in 5 seconds
 ![](Module-5-Visualization/results/ezgif.com-gif-maker.gif)
 
