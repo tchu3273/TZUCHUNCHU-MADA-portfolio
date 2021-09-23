@@ -17,7 +17,7 @@ For Module 5 exercise, I am going to re-create a graph published on **FiveThirty
 ![](Module-5-Visualization/mehta-hurricanemedia-1.png)
 
 
-### Fun animation to show you what I did to replicate the original plot in 5 seconds
+### Fun animation to show you what I have worked on to replicate the original plot in 5 seconds
 ![](Module-5-Visualization/results/ezgif.com-gif-maker.gif)
 
 
@@ -279,18 +279,20 @@ ggsave(filename = figure_file, plot=plot.4, width = 10, height = 5, dpi = 300)
 ![](Module-5-Visualization/results/plot.4.png)
 
 
-### Add titles, annotation in the plot, change panel border and remove axis ticks
+### Add titles, annotation in the plot, change panel border, remove axis ticks and remove the gap between plotted data and axes
 ```{r, warning = F}
 p1 <- ggplot(hurricanes_data_long, aes(x = Date, y = Sent_per_d, fill = Hurricane)) +
   geom_area(position = "dodge") +
   # change x-axis range to reflect the dates shown in the original plot
   scale_x_date(breaks = as.Date(c("2017-08-20","2017-08-27","2017-09-03","2017-09-10","2017-09-17")),
                labels = c("AUG.20.2017","AUG.27","SEPT.3","SEPT.10","SEPT.17"),
-               limits = as.Date(c("2017-08-19","2017-09-22"))) + 
+               limits = as.Date(c("2017-08-19","2017-09-22")),
+               expand = c(0,0)) + 
   # change y-axis scale
   scale_y_continuous(breaks = seq(0,4000,1000),
                      labels = c("0","1,000","2,000","3,000","4,000"),
-                     limits = c(0, 4500)) +
+                     limits = c(0, 4500),
+                     expand = c(0,0)) +
   # change plot color
   scale_fill_manual(values = c("#E66D0F","#E34C82","#52CBC6")) +
   # remove legend
@@ -341,11 +343,13 @@ p2 <- ggplot(states_data_long, aes(x = Date, y = Sent_per_d, fill = States)) +
   # change x-axis range to reflect the dates shown in the original plot
   scale_x_date(breaks = as.Date(c("2017-08-20","2017-08-27","2017-09-03","2017-09-10","2017-09-17")),
                labels = c("AUG.20.2017","AUG.27","SEPT.3","SEPT.10","SEPT.17"),
-               limits = as.Date(c("2017-08-19","2017-09-22"))) + 
+               limits = as.Date(c("2017-08-19","2017-09-22")),
+               expand = c(0,0)) + 
   # change y-axis scale
   scale_y_continuous(breaks = seq(0,4000,1000),
                      labels = c("0","1,000","2,000","3,000","4,000"),
-                     limits = c(0, 5100)) +
+                     limits = c(0, 5100),
+                     expand = c(0,0)) +
   # change plot color
   scale_fill_manual(values = c("#E66D0F","#E34C82","#52CBC6")) +
   # remove legend
@@ -408,6 +412,6 @@ ggsave(filename = figure_file, plot=plot.5.title, width = 10, height = 5, dpi = 
 
 ## The final look of the replicated plot
 
-![](Module-5-Visualization/results/plot.4.png)
+![](Module-5-Visualization/results/plot.5.png)
 
 I think the plot looks very close to the original plot. For some reasons, the states data I downloaded did not match exactly what were presented in the original article. The numbers were a bit off, for instance, the maximum sentences per day in Texas is 5,072, but it looks like it was not higher than 4,500 in the original plot. Another issue that I couldn't resolve is to center the subtitle. I first used plotmath expression to construct the main title and subtitle, and then used annotate_figure to add the texts to the plot, but it defaulted to left alignment, and I couldn't figure out how to alter that. OVerall, this was a fun exercise even though I probably spent too much time figuring out all the little details and tried to make it perfect.
