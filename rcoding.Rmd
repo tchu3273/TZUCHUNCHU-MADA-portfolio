@@ -15,7 +15,7 @@ library(scales) # to access break formatting functions
 library(dslabs) # to use the gapminder data from this package
 ```
 
-I then loaded the *gapminder* data and checked the data strucutre, summary and class 
+I then loaded the *gapminder* data and checked the data structure, summary and class 
 ```{r}
 #Use help to access to the documentation page for gapminder data
 help(gapminder)
