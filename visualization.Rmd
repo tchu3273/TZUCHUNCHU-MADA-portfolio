@@ -328,7 +328,7 @@ p1 <- ggplot(hurricanes_data_long, aes(x = Date, y = Sent_per_d, fill = Hurrican
            fontface = "bold",
            color = "black",
            hjust = 0) +
-  annotate("text", x = as.Date("2017-09-18"), y = 1000, 
+  annotate("text", x = as.Date("2017-09-17"), y = 1000, 
            label = "Hurricane \nMaria", 
            size = 4, 
            fontface = "bold",
@@ -385,7 +385,7 @@ p2 <- ggplot(states_data_long, aes(x = Date, y = Sent_per_d, fill = States)) +
            fontface = "bold",
            color = "black",
            hjust = 0) +
-  annotate("text", x = as.Date("2017-09-16"), y = 1700, 
+  annotate("text", x = as.Date("2017-09-15"), y = 1700, 
            label = "Puerto Rico", 
            size = 4, 
            fontface = "bold",
