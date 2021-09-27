@@ -282,7 +282,7 @@ ggsave(filename = figure_file, plot=plot.4, width = 10, height = 5, dpi = 300)
 ### Add titles, annotation in the plot, change panel border, remove axis ticks and remove the gap between plotted data and axes
 ```{r, warning = F}
 p1 <- ggplot(hurricanes_data_long, aes(x = Date, y = Sent_per_d, fill = Hurricane)) +
-  geom_area(position = "dodge") +
+  geom_area(color = "#FFFFFF", position = "dodge") +
   # change x-axis range to reflect the dates shown in the original plot
   scale_x_date(breaks = as.Date(c("2017-08-20","2017-08-27","2017-09-03","2017-09-10","2017-09-17")),
                labels = c("AUG.20.2017","AUG.27","SEPT.3","SEPT.10","SEPT.17"),
@@ -339,7 +339,7 @@ p1 <- ggplot(hurricanes_data_long, aes(x = Date, y = Sent_per_d, fill = Hurrican
 # give a specific order for states
 states_data_long$States <- factor(states_data_long$States , levels=c("Texas","Florida","Puerto.Rico") )
 p2 <- ggplot(states_data_long, aes(x = Date, y = Sent_per_d, fill = States)) +
-  geom_area(position = "dodge") +
+  geom_area(color = "#FFFFFF", position = "dodge") +
   # change x-axis range to reflect the dates shown in the original plot
   scale_x_date(breaks = as.Date(c("2017-08-20","2017-08-27","2017-09-03","2017-09-10","2017-09-17")),
                labels = c("AUG.20.2017","AUG.27","SEPT.3","SEPT.10","SEPT.17"),
