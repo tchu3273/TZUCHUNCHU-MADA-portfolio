@@ -594,121 +594,167 @@ $(document).ready(function () {
 <span id="cb46-3"><a href="#cb46-3"></a>coul &lt;-<span class="st"> </span><span class="kw">colorRampPalette</span>(coul)(<span class="dv">25</span>)</span>
 <span id="cb46-4"><a href="#cb46-4"></a>program.data &lt;-<span class="st"> </span>combo_new <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb46-5"><a href="#cb46-5"></a><span class="st">                  </span><span class="kw">count</span>(program_desc)</span>
-<span id="cb46-6"><a href="#cb46-6"></a><span class="kw">pie</span>(<span class="dt">x =</span> program.data<span class="op">$</span>n, <span class="dt">label =</span> program.data<span class="op">$</span>program_desc,  <span class="dt">border=</span><span class="st">&quot;white&quot;</span>, <span class="dt">col=</span>coul, <span class="dt">cex=</span><span class="fl">0.8</span>)</span></code></pre></div>
+<span id="cb46-6"><a href="#cb46-6"></a><span class="kw">pie</span>(<span class="dt">x =</span> program.data<span class="op">$</span>n, <span class="dt">label =</span> program.data<span class="op">$</span>program_desc,  <span class="dt">border=</span><span class="st">&quot;white&quot;</span>, <span class="dt">col=</span>coul)</span></code></pre></div>
 <p><img src="tidytuesday_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a>pie</span></code></pre></div>
+<pre><code>## function (x, labels = names(x), edges = 200, radius = 0.8, clockwise = FALSE, 
+##     init.angle = if (clockwise) 90 else 0, density = NULL, angle = 45, 
+##     col = NULL, border = NULL, lty = NULL, main = NULL, ...) 
+## {
+##     if (!is.numeric(x) || any(is.na(x) | x &lt; 0)) 
+##         stop(&quot;&#39;x&#39; values must be positive.&quot;)
+##     if (is.null(labels)) 
+##         labels &lt;- as.character(seq_along(x))
+##     else labels &lt;- as.graphicsAnnot(labels)
+##     x &lt;- c(0, cumsum(x)/sum(x))
+##     dx &lt;- diff(x)
+##     nx &lt;- length(dx)
+##     plot.new()
+##     pin &lt;- par(&quot;pin&quot;)
+##     xlim &lt;- ylim &lt;- c(-1, 1)
+##     if (pin[1L] &gt; pin[2L]) 
+##         xlim &lt;- (pin[1L]/pin[2L]) * xlim
+##     else ylim &lt;- (pin[2L]/pin[1L]) * ylim
+##     dev.hold()
+##     on.exit(dev.flush())
+##     plot.window(xlim, ylim, &quot;&quot;, asp = 1)
+##     if (is.null(col)) 
+##         col &lt;- if (is.null(density)) 
+##             c(&quot;white&quot;, &quot;lightblue&quot;, &quot;mistyrose&quot;, &quot;lightcyan&quot;, 
+##                 &quot;lavender&quot;, &quot;cornsilk&quot;)
+##         else par(&quot;fg&quot;)
+##     if (!is.null(col)) 
+##         col &lt;- rep_len(col, nx)
+##     if (!is.null(border)) 
+##         border &lt;- rep_len(border, nx)
+##     if (!is.null(lty)) 
+##         lty &lt;- rep_len(lty, nx)
+##     angle &lt;- rep(angle, nx)
+##     if (!is.null(density)) 
+##         density &lt;- rep_len(density, nx)
+##     twopi &lt;- if (clockwise) 
+##         -2 * pi
+##     else 2 * pi
+##     t2xy &lt;- function(t) {
+##         t2p &lt;- twopi * t + init.angle * pi/180
+##         list(x = radius * cos(t2p), y = radius * sin(t2p))
+##     }
+##     for (i in 1L:nx) {
+##         n &lt;- max(2, floor(edges * dx[i]))
+##         P &lt;- t2xy(seq.int(x[i], x[i + 1], length.out = n))
+##         polygon(c(P$x, 0), c(P$y, 0), density = density[i], angle = angle[i], 
+##             border = border[i], col = col[i], lty = lty[i])
+##         P &lt;- t2xy(mean(x[i + 0:1]))
+##         lab &lt;- as.character(labels[i])
+##         if (!is.na(lab) &amp;&amp; nzchar(lab)) {
+##             lines(c(1, 1.05) * P$x, c(1, 1.05) * P$y)
+##             text(1.1 * P$x, 1.1 * P$y, labels[i], xpd = TRUE, 
+##                 adj = ifelse(P$x &lt; 0, 1, 0), ...)
+##         }
+##     }
+##     title(main = main, ...)
+##     invisible(NULL)
+## }
+## &lt;bytecode: 0x00000000381c6ec0&gt;
+## &lt;environment: namespace:graphics&gt;</code></pre>
 <p>The frequency table shows that top 3 most frequently published programs are “Labor Studies”, “Public Economics” and “Economic Fluctuations and Growth”.</p>
 </div>
 <div id="plotting" class="section level1">
 <h1>Plotting</h1>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a>combo_new <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb47-2"><a href="#cb47-2"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> year, <span class="dt">fill =</span> program_category)) <span class="op">+</span></span>
-<span id="cb47-3"><a href="#cb47-3"></a><span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">stat=</span><span class="st">&quot;bin&quot;</span>) <span class="op">+</span></span>
-<span id="cb47-4"><a href="#cb47-4"></a><span class="st">  </span><span class="kw">scale_fill_brewer</span>(<span class="dt">palette=</span><span class="st">&quot;Set3&quot;</span>) <span class="op">+</span></span>
-<span id="cb47-5"><a href="#cb47-5"></a><span class="st">  </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
-<span id="cb47-6"><a href="#cb47-6"></a><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Frequency of publication by program categories over time&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a>combo_new <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb49-2"><a href="#cb49-2"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> year, <span class="dt">fill =</span> program_category)) <span class="op">+</span></span>
+<span id="cb49-3"><a href="#cb49-3"></a><span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">stat=</span><span class="st">&quot;bin&quot;</span>) <span class="op">+</span></span>
+<span id="cb49-4"><a href="#cb49-4"></a><span class="st">  </span><span class="kw">scale_fill_brewer</span>(<span class="dt">palette=</span><span class="st">&quot;Set3&quot;</span>) <span class="op">+</span></span>
+<span id="cb49-5"><a href="#cb49-5"></a><span class="st">  </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
+<span id="cb49-6"><a href="#cb49-6"></a><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Frequency of publication by program categories over time&quot;</span>)</span></code></pre></div>
 <pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="tidytuesday_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <p>According to the stacked area chart, we can see that most of the economic papers were concerning topics on the macro and international level from 1980 to 1990. On the contrary, microeconomics-related studies were published the most in the past 10 years, followed by macro/international field and then finance. Furthermore, it looks like there was an increasing trend of publications regarding macro/international field right around 2010, which got me thinking whether this pattern has something to do with the Great Recession lasting from December 2007 to June 2009. Hence, I decided to dive deeper to look at the data within this time period between 2006 and 2010.</p>
 </div>
 <div id="subset-the-data" class="section level1">
 <h1>Subset the data</h1>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a>reces.period &lt;-<span class="st"> </span>combo_new <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb49-2"><a href="#cb49-2"></a><span class="st">     </span><span class="kw">filter</span>(year <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">2006</span>,<span class="dv">2007</span>,<span class="dv">2008</span>,<span class="dv">2009</span>,<span class="dv">2010</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a><span class="co"># factor program category</span></span>
-<span id="cb50-2"><a href="#cb50-2"></a>reces.period<span class="op">$</span>program_category &lt;-<span class="st"> </span><span class="kw">factor</span>(reces.period<span class="op">$</span>program_category, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;Finance&quot;</span>,<span class="st">&quot;Micro&quot;</span>,<span class="st">&quot;Macro/International&quot;</span>))</span>
-<span id="cb50-3"><a href="#cb50-3"></a>reces.period <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb50-4"><a href="#cb50-4"></a><span class="st">  </span><span class="kw">group_by</span>(year) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb50-5"><a href="#cb50-5"></a><span class="st">  </span><span class="kw">count</span>(program_category) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb50-6"><a href="#cb50-6"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> year, <span class="dt">y =</span> n, <span class="dt">fill =</span> program_category)) <span class="op">+</span></span>
-<span id="cb50-7"><a href="#cb50-7"></a><span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>, <span class="dt">position =</span> <span class="st">&quot;dodge&quot;</span>) <span class="op">+</span></span>
-<span id="cb50-8"><a href="#cb50-8"></a><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">2006</span>,<span class="dv">2010</span>,<span class="dv">1</span>)) <span class="op">+</span></span>
-<span id="cb50-9"><a href="#cb50-9"></a><span class="st">  </span><span class="kw">scale_fill_brewer</span>(<span class="dt">palette=</span><span class="st">&quot;Dark2&quot;</span>) <span class="op">+</span></span>
-<span id="cb50-10"><a href="#cb50-10"></a><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Number of publications by program cateogory between 2006 and 2010&quot;</span>) <span class="op">+</span></span>
-<span id="cb50-11"><a href="#cb50-11"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;Number of publications&quot;</span>) <span class="op">+</span></span>
-<span id="cb50-12"><a href="#cb50-12"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Year&quot;</span>) </span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a>reces.period &lt;-<span class="st"> </span>combo_new <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb51-2"><a href="#cb51-2"></a><span class="st">     </span><span class="kw">filter</span>(year <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">2006</span>,<span class="dv">2007</span>,<span class="dv">2008</span>,<span class="dv">2009</span>,<span class="dv">2010</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a><span class="co"># factor program category</span></span>
+<span id="cb52-2"><a href="#cb52-2"></a>reces.period<span class="op">$</span>program_category &lt;-<span class="st"> </span><span class="kw">factor</span>(reces.period<span class="op">$</span>program_category, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;Finance&quot;</span>,<span class="st">&quot;Micro&quot;</span>,<span class="st">&quot;Macro/International&quot;</span>))</span>
+<span id="cb52-3"><a href="#cb52-3"></a>reces.period <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb52-4"><a href="#cb52-4"></a><span class="st">  </span><span class="kw">group_by</span>(year) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb52-5"><a href="#cb52-5"></a><span class="st">  </span><span class="kw">count</span>(program_category) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb52-6"><a href="#cb52-6"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> year, <span class="dt">y =</span> n, <span class="dt">fill =</span> program_category)) <span class="op">+</span></span>
+<span id="cb52-7"><a href="#cb52-7"></a><span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>, <span class="dt">position =</span> <span class="st">&quot;dodge&quot;</span>) <span class="op">+</span></span>
+<span id="cb52-8"><a href="#cb52-8"></a><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">2006</span>,<span class="dv">2010</span>,<span class="dv">1</span>)) <span class="op">+</span></span>
+<span id="cb52-9"><a href="#cb52-9"></a><span class="st">  </span><span class="kw">scale_fill_brewer</span>(<span class="dt">palette=</span><span class="st">&quot;Dark2&quot;</span>) <span class="op">+</span></span>
+<span id="cb52-10"><a href="#cb52-10"></a><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Number of publications by program cateogory between 2006 and 2010&quot;</span>) <span class="op">+</span></span>
+<span id="cb52-11"><a href="#cb52-11"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;Number of publications&quot;</span>) <span class="op">+</span></span>
+<span id="cb52-12"><a href="#cb52-12"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Year&quot;</span>) </span></code></pre></div>
 <p><img src="tidytuesday_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
 <p>Well, it looks like there were not much fluctuation in number of publications between three categories across five calender years. I wonder if this was because the data was aggregated by year, and maybe the monthly data could provide more insights about the actual trend change.</p>
 </div>
 <div id="combine-year-and-month-to-date-variable" class="section level1">
 <h1>Combine year and month to date variable</h1>
-<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a>reces.period.new &lt;-<span class="st"> </span>reces.period <span class="op">%&gt;%</span></span>
-<span id="cb51-2"><a href="#cb51-2"></a><span class="st">                      </span><span class="kw">mutate</span>(<span class="dt">date =</span> <span class="kw">make_date</span>(year, month))</span></code></pre></div>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a><span class="co">#Produce a vector of days </span></span>
-<span id="cb52-2"><a href="#cb52-2"></a>dateVec &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dt">from =</span> <span class="kw">as.Date</span>(<span class="st">&quot;2006-01-01&quot;</span>), <span class="dt">to =</span> <span class="kw">as.Date</span>(<span class="st">&quot;2010-12-01&quot;</span>), <span class="dt">by =</span> <span class="st">&quot;months&quot;</span>)</span>
-<span id="cb52-3"><a href="#cb52-3"></a></span>
-<span id="cb52-4"><a href="#cb52-4"></a><span class="kw">ggplot</span>(reces.period.new, <span class="kw">aes</span>(<span class="dt">x =</span> date,  <span class="dt">fill =</span> program_category)) <span class="op">+</span></span>
-<span id="cb52-5"><a href="#cb52-5"></a><span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">stat=</span><span class="st">&quot;bin&quot;</span>) <span class="op">+</span></span>
-<span id="cb52-6"><a href="#cb52-6"></a><span class="st">  </span><span class="kw">scale_x_date</span>(<span class="dt">date_breaks =</span> <span class="st">&quot;3 month&quot;</span>,</span>
-<span id="cb52-7"><a href="#cb52-7"></a>               <span class="dt">limits =</span> <span class="kw">c</span>(<span class="kw">min</span>(dateVec), <span class="kw">max</span>(dateVec)),</span>
-<span id="cb52-8"><a href="#cb52-8"></a>               <span class="dt">expand=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>)) <span class="op">+</span></span>
-<span id="cb52-9"><a href="#cb52-9"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust=</span><span class="dv">1</span>)) <span class="op">+</span></span>
-<span id="cb52-10"><a href="#cb52-10"></a><span class="st">  </span><span class="kw">scale_fill_brewer</span>(<span class="dt">palette=</span><span class="st">&quot;Accent&quot;</span>) <span class="op">+</span></span>
-<span id="cb52-11"><a href="#cb52-11"></a><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;The stacked area chart for number of publications by program category </span><span class="ch">\n</span><span class="st">between between 2006 and 2010, monthly data&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a>reces.period.new &lt;-<span class="st"> </span>reces.period <span class="op">%&gt;%</span></span>
+<span id="cb53-2"><a href="#cb53-2"></a><span class="st">                      </span><span class="kw">mutate</span>(<span class="dt">date =</span> <span class="kw">make_date</span>(year, month))</span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1"></a><span class="co">#Produce a vector of days </span></span>
+<span id="cb54-2"><a href="#cb54-2"></a>dateVec &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dt">from =</span> <span class="kw">as.Date</span>(<span class="st">&quot;2006-01-01&quot;</span>), <span class="dt">to =</span> <span class="kw">as.Date</span>(<span class="st">&quot;2010-12-01&quot;</span>), <span class="dt">by =</span> <span class="st">&quot;months&quot;</span>)</span>
+<span id="cb54-3"><a href="#cb54-3"></a></span>
+<span id="cb54-4"><a href="#cb54-4"></a><span class="kw">ggplot</span>(reces.period.new, <span class="kw">aes</span>(<span class="dt">x =</span> date,  <span class="dt">fill =</span> program_category)) <span class="op">+</span></span>
+<span id="cb54-5"><a href="#cb54-5"></a><span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">stat=</span><span class="st">&quot;bin&quot;</span>) <span class="op">+</span></span>
+<span id="cb54-6"><a href="#cb54-6"></a><span class="st">  </span><span class="kw">scale_x_date</span>(<span class="dt">date_breaks =</span> <span class="st">&quot;3 month&quot;</span>,</span>
+<span id="cb54-7"><a href="#cb54-7"></a>               <span class="dt">limits =</span> <span class="kw">c</span>(<span class="kw">min</span>(dateVec), <span class="kw">max</span>(dateVec)),</span>
+<span id="cb54-8"><a href="#cb54-8"></a>               <span class="dt">expand=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>)) <span class="op">+</span></span>
+<span id="cb54-9"><a href="#cb54-9"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust=</span><span class="dv">1</span>)) <span class="op">+</span></span>
+<span id="cb54-10"><a href="#cb54-10"></a><span class="st">  </span><span class="kw">scale_fill_brewer</span>(<span class="dt">palette=</span><span class="st">&quot;Accent&quot;</span>) <span class="op">+</span></span>
+<span id="cb54-11"><a href="#cb54-11"></a><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;The stacked area chart for number of publications by program category </span><span class="ch">\n</span><span class="st">between between 2006 and 2010, monthly data&quot;</span>)</span></code></pre></div>
 <pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="tidytuesday_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
 <p>It looks like there there were higher number of publications in certain months. The spikes generally occurred during July and October every year. The number of macro-level studies published seems to be fairly stable over the course of five years. Oops, I just realized that there are duplicated titles due to multiple authors listed on one paper, and this could affect our comparison results. However, one paper could be categorized into more than one group the program and detailed description. I’m not sure what’s the best way to address this issue. I could have created new categories by grouping multiple categories together such as micro/macro, micro/finance, or just categorized these publication with mixed fields into “Other”. For this exercise, I will just keep the current data by focusing on the which topic areas were covered by the published paper even thought it might be from the same article.</p>
 </div>
 <div id="which-author-had-the-most-publications" class="section level1">
 <h1>Which author had the most publications?</h1>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1"></a><span class="co"># exclude the duplicated publications</span></span>
-<span id="cb54-2"><a href="#cb54-2"></a>reces.period.new <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb54-3"><a href="#cb54-3"></a><span class="st">  </span><span class="kw">distinct</span>(title, name) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb54-4"><a href="#cb54-4"></a><span class="st">  </span><span class="kw">count</span>(name) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb54-5"><a href="#cb54-5"></a><span class="st">  </span><span class="kw">arrange</span>(<span class="op">-</span>n) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb54-6"><a href="#cb54-6"></a><span class="st">  </span><span class="kw">filter</span>(n <span class="op">&gt;</span><span class="st"> </span><span class="dv">20</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb54-7"><a href="#cb54-7"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> name, <span class="dt">y =</span> n)) <span class="op">+</span></span>
-<span id="cb54-8"><a href="#cb54-8"></a><span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="op">+</span></span>
-<span id="cb54-9"><a href="#cb54-9"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust=</span><span class="dv">1</span>)) <span class="op">+</span></span>
-<span id="cb54-10"><a href="#cb54-10"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span></span>
-<span id="cb54-11"><a href="#cb54-11"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&#39;count&#39;</span>) </span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a><span class="co"># exclude the duplicated publications</span></span>
+<span id="cb56-2"><a href="#cb56-2"></a>reces.period.new <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb56-3"><a href="#cb56-3"></a><span class="st">  </span><span class="kw">distinct</span>(title, name) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb56-4"><a href="#cb56-4"></a><span class="st">  </span><span class="kw">count</span>(name) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb56-5"><a href="#cb56-5"></a><span class="st">  </span><span class="kw">arrange</span>(<span class="op">-</span>n) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb56-6"><a href="#cb56-6"></a><span class="st">  </span><span class="kw">filter</span>(n <span class="op">&gt;</span><span class="st"> </span><span class="dv">20</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb56-7"><a href="#cb56-7"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> name, <span class="dt">y =</span> n)) <span class="op">+</span></span>
+<span id="cb56-8"><a href="#cb56-8"></a><span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="op">+</span></span>
+<span id="cb56-9"><a href="#cb56-9"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust=</span><span class="dv">1</span>)) <span class="op">+</span></span>
+<span id="cb56-10"><a href="#cb56-10"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span></span>
+<span id="cb56-11"><a href="#cb56-11"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&#39;count&#39;</span>) </span></code></pre></div>
 <p><img src="tidytuesday_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
 <p>12 authors had more than 20 publications during these years.</p>
 </div>
 <div id="what-is-the-number-of-publications-by-program-sub-category-between-2006-and-2010" class="section level1">
 <h1>What is the number of publications by program sub-category between 2006 and 2010?</h1>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a>reces.period.new <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> date, <span class="dt">fill =</span> program_desc )) <span class="op">+</span></span>
-<span id="cb55-2"><a href="#cb55-2"></a><span class="st">                      </span><span class="kw">geom_area</span>(<span class="dt">stat=</span><span class="st">&quot;bin&quot;</span>, <span class="dt">bins =</span> <span class="dv">30</span>) <span class="op">+</span></span>
-<span id="cb55-3"><a href="#cb55-3"></a><span class="st">                      </span><span class="kw">scale_x_date</span>(<span class="dt">date_breaks =</span> <span class="st">&quot;3 month&quot;</span>,</span>
-<span id="cb55-4"><a href="#cb55-4"></a>                      <span class="dt">limits =</span> <span class="kw">c</span>(<span class="kw">min</span>(dateVec), <span class="kw">max</span>(dateVec)),</span>
-<span id="cb55-5"><a href="#cb55-5"></a>                      <span class="dt">expand=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>)) <span class="op">+</span></span>
-<span id="cb55-6"><a href="#cb55-6"></a><span class="st">                      </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust=</span><span class="dv">1</span>)) </span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a>reces.period.new <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> date, <span class="dt">fill =</span> program_desc )) <span class="op">+</span></span>
+<span id="cb57-2"><a href="#cb57-2"></a><span class="st">                      </span><span class="kw">geom_area</span>(<span class="dt">stat=</span><span class="st">&quot;bin&quot;</span>, <span class="dt">bins =</span> <span class="dv">30</span>) <span class="op">+</span></span>
+<span id="cb57-3"><a href="#cb57-3"></a><span class="st">                      </span><span class="kw">scale_x_date</span>(<span class="dt">date_breaks =</span> <span class="st">&quot;3 month&quot;</span>,</span>
+<span id="cb57-4"><a href="#cb57-4"></a>                      <span class="dt">limits =</span> <span class="kw">c</span>(<span class="kw">min</span>(dateVec), <span class="kw">max</span>(dateVec)),</span>
+<span id="cb57-5"><a href="#cb57-5"></a>                      <span class="dt">expand=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>)) <span class="op">+</span></span>
+<span id="cb57-6"><a href="#cb57-6"></a><span class="st">                      </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust=</span><span class="dv">1</span>)) </span></code></pre></div>
 <p><img src="tidytuesday_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
-<p>It’s a bit difficult to see the pattern with so many categories. Let’s focus on the program sub-categories within Macro or International studies.</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a>reces.period.new <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(program_category <span class="op">==</span><span class="st"> &quot;Macro/International&quot;</span>) <span class="op">%&gt;%</span></span>
-<span id="cb56-2"><a href="#cb56-2"></a><span class="st">                      </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> date, <span class="dt">fill =</span> program_desc )) <span class="op">+</span></span>
-<span id="cb56-3"><a href="#cb56-3"></a><span class="st">                      </span><span class="kw">geom_area</span>(<span class="dt">stat=</span><span class="st">&quot;bin&quot;</span>, <span class="dt">bins =</span> <span class="dv">30</span>) <span class="op">+</span></span>
-<span id="cb56-4"><a href="#cb56-4"></a><span class="st">                      </span><span class="kw">scale_x_date</span>(<span class="dt">date_breaks =</span> <span class="st">&quot;3 month&quot;</span>,</span>
-<span id="cb56-5"><a href="#cb56-5"></a>                      <span class="dt">limits =</span> <span class="kw">c</span>(<span class="kw">min</span>(dateVec), <span class="kw">max</span>(dateVec)),</span>
-<span id="cb56-6"><a href="#cb56-6"></a>                      <span class="dt">expand=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>)) <span class="op">+</span></span>
-<span id="cb56-7"><a href="#cb56-7"></a><span class="st">                      </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust=</span><span class="dv">1</span>)) </span></code></pre></div>
+<p>It’s a bit difficult to see the pattern with so many categories. Let’s focus on the program subcategories within Macro or International studies.</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a>reces.period.new <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(program_category <span class="op">==</span><span class="st"> &quot;Macro/International&quot;</span>) <span class="op">%&gt;%</span></span>
+<span id="cb58-2"><a href="#cb58-2"></a><span class="st">                      </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> date, <span class="dt">fill =</span> program_desc )) <span class="op">+</span></span>
+<span id="cb58-3"><a href="#cb58-3"></a><span class="st">                      </span><span class="kw">geom_area</span>(<span class="dt">stat=</span><span class="st">&quot;bin&quot;</span>, <span class="dt">bins =</span> <span class="dv">30</span>) <span class="op">+</span></span>
+<span id="cb58-4"><a href="#cb58-4"></a><span class="st">                      </span><span class="kw">scale_x_date</span>(<span class="dt">date_breaks =</span> <span class="st">&quot;3 month&quot;</span>,</span>
+<span id="cb58-5"><a href="#cb58-5"></a>                      <span class="dt">limits =</span> <span class="kw">c</span>(<span class="kw">min</span>(dateVec), <span class="kw">max</span>(dateVec)),</span>
+<span id="cb58-6"><a href="#cb58-6"></a>                      <span class="dt">expand=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>)) <span class="op">+</span></span>
+<span id="cb58-7"><a href="#cb58-7"></a><span class="st">                      </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust=</span><span class="dv">1</span>)) </span></code></pre></div>
 <p><img src="tidytuesday_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a>summarytools<span class="op">::</span><span class="kw">freq</span>(combo_new<span class="op">$</span>program_desc, <span class="dt">order =</span> <span class="st">&quot;freq&quot;</span>)</span></code></pre></div>
-<pre><code>## Frequencies  
-## 
-##                                                          Freq   % Valid   % Valid Cum.   % Total   % Total Cum.
-## ---------------------------------------------------- -------- --------- -------------- --------- --------------
-##                                        Labor Studies    14084     10.95          10.95     10.95          10.95
-##                                     Public Economics    13967     10.86          21.82     10.86          21.82
-##                     Economic Fluctuations and Growth    13113     10.20          32.02     10.20          32.02
-##             International Finance and Macroeconomics     8570      6.67          38.68      6.67          38.68
-##                   International Trade and Investment     7125      5.54          44.23      5.54          44.23
-##                                   Monetary Economics     7121      5.54          49.76      5.54          49.76
-##                                        Asset Pricing     6804      5.29          55.06      5.29          55.06
-##                                     Health Economics     6671      5.19          60.25      5.19          60.25
-##                                    Corporate Finance     6153      4.79          65.03      4.79          65.03
-##       Productivity, Innovation, and Entrepreneurship     6084      4.73          69.76      4.73          69.76
-##                                          Health Care     4678      3.64          73.40      3.64          73.40
-##                                             Children     4502      3.50          76.90      3.50          76.90
-##                              Industrial Organization     4492      3.49          80.40      3.49          80.40
-##                               Economics of Education     4311      3.35          83.75      3.35          83.75
-##                                   Economics of Aging     4237      3.30          87.05      3.30          87.05
-##                                Development Economics     3849      2.99          90.04      2.99          90.04
-##                                  Political Economics     3557      2.77          92.81      2.77          92.81
-##                  Development of the American Economy     3370      2.62          95.43      2.62          95.43
-##                     Environment and Energy Economics     3084      2.40          97.83      2.40          97.83
-##                                    Law and Economics     2793      2.17         100.00      2.17         100.00
-##                                                 &lt;NA&gt;        0                               0.00         100.00
-##                                                Total   128565    100.00         100.00    100.00         100.00</code></pre>
+<p>Apparently, economic fluctuations and growth is a major focus during these 5 years, and it looks like that this upward trend will continue. Now, I’m curious to know if that is true. I am gonna plot the same graph but extend to all years.</p>
+</div>
+<div id="trend-in-number-of-published-macroencomomics-studies-by-subcategories-over-time" class="section level1">
+<h1>Trend in number of published macroencomomics studies by subcategories over time</h1>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a>combo_new <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb59-2"><a href="#cb59-2"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">date =</span> <span class="kw">make_date</span>(year, month)) <span class="op">%&gt;%</span></span>
+<span id="cb59-3"><a href="#cb59-3"></a><span class="st">  </span><span class="kw">filter</span>(program_category <span class="op">==</span><span class="st"> &quot;Macro/International&quot;</span>) <span class="op">%&gt;%</span></span>
+<span id="cb59-4"><a href="#cb59-4"></a><span class="st">                      </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> year, <span class="dt">fill =</span> program_desc )) <span class="op">+</span></span>
+<span id="cb59-5"><a href="#cb59-5"></a><span class="st">                      </span><span class="kw">geom_area</span>(<span class="dt">stat=</span><span class="st">&quot;bin&quot;</span>, <span class="dt">bins =</span> <span class="dv">30</span>) <span class="op">+</span></span>
+<span id="cb59-6"><a href="#cb59-6"></a><span class="st">                      </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust=</span><span class="dv">1</span>)) </span></code></pre></div>
+<p><img src="tidytuesday_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+<p>Based on the plotted graph, there is indeed an increasing trend in number of macroenconomics papers concerning the economic fluctuation and growth over time.</p>
 </div>
 
 
