@@ -1,9 +1,239 @@
 ---
-title: "Tidy Tuesday"
+title: "Tzu-Chun's Tidy Tuesday Exercise"
 output: 
   html_document:
     toc: FALSE
 ---
 
-This will contain the future Tidy Tuesday exercise.
+# Loading required packages 
+```{r}
+install.packages("tidytuesdayR") # used to read in data directly
+library(here)
+library(tidyverse)
+library(tidytuesdayR)
+library(nberwp)
+library(summarytools) # to create frequency table
+library(RColorBrewer) # prepare a color palette for pie chart
+library(lubridate) # used to work with datetime variables 
+library(tidytext)
+```
+
+
+# Get the data with tidytuesdayR package
+```{r}
+# This loads the readme and all the datasets for the week of interest
+# Either ISO-8601 date or year/week works
+tuesdata <- tidytuesdayR::tt_load(2021, week = 40)
+```
+
+For some reason, I couldn't get the data directly using the tidytuesdayR package and it seems like only the week 39 data were available for importing. Therefore, I will import these data manually.  
+
+# Import data manually
+```{r, message = F}
+papers <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-28/papers.csv')
+authors <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-28/authors.csv')
+programs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-28/programs.csv')
+paper_authors <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-28/paper_authors.csv')
+paper_programs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-28/paper_programs.csv')
+```
+
+# Cleaning script used to create the combo data
+```{r}
+papers %>% 
+  write_csv("tidytuesday/data/papers.csv")
+
+authors %>% 
+  write_csv("tidytuesday/data/authors.csv")
+
+programs %>% 
+  write_csv("tidytuesday/data/programs.csv")
+
+paper_authors %>% 
+  write_csv('tidytuesday/data/paper_authors.csv')
+
+paper_programs %>% 
+  write_csv("tidytuesday/data/paper_programs.csv")
+
+joined_df <- left_join(papers, paper_authors) %>% 
+  left_join(authors) %>% 
+  left_join(paper_programs) %>% 
+  left_join(programs)%>% 
+  mutate(
+    catalogue_group = str_sub(paper, 1, 1),
+    catalogue_group = case_when(
+      catalogue_group == "h" ~ "Historical",
+      catalogue_group == "t" ~ "Technical",
+      catalogue_group == "w" ~ "General"
+    ),
+    .after = paper
+  ) 
+
+combo_df <- joined_df
+```
+
+# Examine the combo data
+```{r}
+dim (combo_df)
+```
+
+```{r}
+str(combo_df)
+```
+
+```{r}
+summary(combo_df)
+```
+
+# Check the missingness
+```{r}
+missing_table <- sapply(combo_df, function(x){ 
+                 freq <- sum(is.na(x))
+                 perc <- round(sum(is.na(x))/length(x)*100,2)
+                 return(c(freq, perc))
+                 })
+rownames(missing_table) <- c("freq", "perc")
+missing_table
+```
+
+There are 130,081 rows and 12 variables in the combo data. The data type for each variable looks correct, but there are missingness in the data. Program and program description (basically the same variable) have most of the missing values (41%). In order to simplify the further data analysis, I will exclude these rows. 
+
+```{r}
+combo_df2 <- combo_df %>% 
+             dplyr::filter(!is.na(program))
+missing_table <- sapply(combo_df2, function(x){ 
+                 freq <- sum(is.na(x))
+                 perc <- round(sum(is.na(x))/length(x)*100,2)
+                 return(c(freq, perc))
+                 })
+rownames(missing_table) <- c("freq", "perc")
+missing_table
+```
+We can see that there is still 0.76 % of missing values in program_category. I will also remove these rows. 
+
+```{r}
+combo_new <- combo_df2 %>% 
+             dplyr::filter(!is.na(program_category))
+missing_table <- sapply(combo_new, function(x){ 
+                 freq <- sum(is.na(x))
+                 perc <- round(sum(is.na(x))/length(x)*100,2)
+                 return(c(freq, perc))
+                 })
+rownames(missing_table) <- c("freq", "perc")
+missing_table
+```
+
+Now, we have the complete data for all columns except for user_nber and user_repec, but I will not use these variables in the following analysis. Hence, I will just ignore these two variables for now and keep it as it is.
+
+# Frequency of publication by catalogues over time
+```{r}
+combo_new %>% 
+  ggplot(aes(x = year, fill = catalogue_group)) +
+  geom_histogram(position = "stack", binwidth=2) 
+```
+
+It looks like there is a rising trend in terms of the number of publications over time and most of the publications were just general type.
+
+# Peek into the program of the publications
+```{r}
+summarytools::freq(combo_new$program_desc, order = "freq")
+```
+
+# Pie chart 
+```{r}
+coul <- brewer.pal(4, "PuOr") 
+# Add more colors to this palette
+coul <- colorRampPalette(coul)(25)
+program.data <- combo_new %>% 
+                  count(program_desc)
+pie(x = program.data$n, label = program.data$program_desc,  border="white", col=coul)
+```
+
+The frequency table shows that top 3 most frequently published programs are "Labor Studies", "Public Economics" and "Economic Fluctuations and Growth".
+
+# Plotting
+```{r}
+combo_new %>% 
+  ggplot(aes(x = year, fill = program_category)) +
+  geom_area(stat="bin") +
+  scale_fill_brewer(palette="Set3") +
+  theme_bw() +
+  ggtitle("Frequency of publication by program categories over time")
+```
+
+According to the stacked area chart, we can see that most of the economic papers were concerning topics on the macro and international level from 1980 to 1990. On the contrary, microeconomics-related studies were published the most in the past 10 years, followed by macro/international field and then finance. Furthermore, it looks like there was an increasing trend of publications regarding macro/international field right around 2010, which got me thinking whether this pattern has something to do with the Great Recession lasting from December 2007 to June 2009. Hence, I decided to dive deeper to look at the data within this time period between 2006 and 2010. 
+
+# Subset the data
+```{r}
+reces.period <- combo_new %>% 
+     filter(year %in% c(2006,2007,2008,2009,2010))
+```
+
+```{r}
+# factor program category
+reces.period$program_category <- factor(reces.period$program_category, levels = c("Finance","Micro","Macro/International"))
+reces.period %>% 
+  group_by(year) %>% 
+  count(program_category) %>% 
+  ggplot(aes(x = year, y = n, fill = program_category)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_x_continuous(breaks = seq(2006,2010,1)) +
+  scale_fill_brewer(palette="Dark2") +
+  ggtitle("Number of publications by program cateogory between 2006 and 2010") +
+  ylab("Number of publications") +
+  xlab("Year") 
+```
+
+Well, it looks like there were not much fluctuation in number of publications between three categories across five calender years. I wonder if this was because the data was aggregated by year, and maybe the monthly data could provide more insights about the actual trend change. 
+
+# Combine year and month to date variable
+```{r}
+reces.period.new <- reces.period %>%
+                      mutate(date = make_date(year, month))
+```
+
+
+```{r}
+#Produce a vector of days 
+dateVec <- seq(from = as.Date("2006-01-01"), to = as.Date("2010-12-01"), by = "months")
+
+ggplot(reces.period.new, aes(x = date,  fill = program_category)) +
+  geom_area(stat="bin") +
+  scale_x_date(date_breaks = "3 month",
+               limits = c(min(dateVec), max(dateVec)),
+               expand=c(0,0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+  scale_fill_brewer(palette="Accent") +
+  ggtitle("The stacked area chart for number of publications by program category \nbetween between 2006 and 2010, monthly data")
+
+```
+
+It looks like there there were higher number of publications in certain months. The spikes generally occurred during July and October every year. The number of macro-level studies published seems to be fairly stable over the course of five years. Oops, I just realized that there are duplicated titles due to multiple authors listed on one paper, and this could affect our comparison results. However, one paper could be categorized into more than one group the program and detailed description. I'm not sure what's the best way to address this issue. I could have created new categories by grouping multiple categories together such as micro/macro, micro/finance, or just categorized these publication with mixed fields into "Other". For this exercise, I will just keep the current data by focusing on the which topic areas were covered by the published paper even thought it might be from the same article.
+
+# Which author had the most publications?
+```{r}
+# exclude the duplicated publications
+reces.period.new %>% 
+  distinct(title, name) %>% 
+  count(name) %>% 
+  arrange(-n) %>% 
+  filter(n > 20) %>% 
+  ggplot(aes(x = name, y = n)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+  xlab("") +
+  ylab('count') 
+ 
+```
+
+12 authors had more than 20 publications during these years. 
+
+# What is the number of publications by program sub-category between 2006 and 2010?
+```{r}
+reces.period.new %>% ggplot(aes(x = date, fill = program_desc )) +
+                      geom_area(stat="bin", bins = 30) +
+                      scale_x_date(date_breaks = "3 month",
+                      limits = c(min(dateVec), max(dateVec)),
+                      expand=c(0,0)) +
+                      theme(axis.text.x = element_text(angle = 45, hjust=1)) 
+```
 
