@@ -412,7 +412,7 @@ $(document).ready(function () {
 <h1>Get the data with tidytuesdayR package</h1>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="co"># This loads the readme and all the datasets for the week of interest</span></span>
 <span id="cb23-2"><a href="#cb23-2"></a><span class="co"># Either ISO-8601 date or year/week works</span></span>
-<span id="cb23-3"><a href="#cb23-3"></a><span class="co">#tuesdata &lt;- tidytuesdayR::tt_load(2021, week = 40)</span></span></code></pre></div>
+<span id="cb23-3"><a href="#cb23-3"></a><span class="co"># tuesdata &lt;- tidytuesdayR::tt_load(2021, week = 40)</span></span></code></pre></div>
 <p>For some reason, I couldn’t get the data directly using the tidytuesdayR package and it seems like only the week 39 data were available for importing. Therefore, I will import these data manually.</p>
 </div>
 <div id="import-data-manually" class="section level1">
@@ -594,7 +594,7 @@ $(document).ready(function () {
 <span id="cb46-3"><a href="#cb46-3"></a>coul &lt;-<span class="st"> </span><span class="kw">colorRampPalette</span>(coul)(<span class="dv">25</span>)</span>
 <span id="cb46-4"><a href="#cb46-4"></a>program.data &lt;-<span class="st"> </span>combo_new <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb46-5"><a href="#cb46-5"></a><span class="st">                  </span><span class="kw">count</span>(program_desc)</span>
-<span id="cb46-6"><a href="#cb46-6"></a><span class="kw">pie</span>(<span class="dt">x =</span> program.data<span class="op">$</span>n, <span class="dt">label =</span> program.data<span class="op">$</span>program_desc,  <span class="dt">border=</span><span class="st">&quot;white&quot;</span>, <span class="dt">col=</span>coul)</span></code></pre></div>
+<span id="cb46-6"><a href="#cb46-6"></a><span class="kw">pie</span>(<span class="dt">x =</span> program.data<span class="op">$</span>n, <span class="dt">label =</span> program.data<span class="op">$</span>program_desc,  <span class="dt">border=</span><span class="st">&quot;white&quot;</span>, <span class="dt">col=</span>coul, <span class="dt">cex=</span><span class="fl">0.8</span>)</span></code></pre></div>
 <p><img src="tidytuesday_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 <p>The frequency table shows that top 3 most frequently published programs are “Labor Studies”, “Public Economics” and “Economic Fluctuations and Growth”.</p>
 </div>
@@ -673,6 +673,42 @@ $(document).ready(function () {
 <span id="cb55-5"><a href="#cb55-5"></a>                      <span class="dt">expand=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>)) <span class="op">+</span></span>
 <span id="cb55-6"><a href="#cb55-6"></a><span class="st">                      </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust=</span><span class="dv">1</span>)) </span></code></pre></div>
 <p><img src="tidytuesday_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<p>It’s a bit difficult to see the pattern with so many categories. Let’s focus on the program sub-categories within Macro or International studies.</p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a>reces.period.new <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(program_category <span class="op">==</span><span class="st"> &quot;Macro/International&quot;</span>) <span class="op">%&gt;%</span></span>
+<span id="cb56-2"><a href="#cb56-2"></a><span class="st">                      </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> date, <span class="dt">fill =</span> program_desc )) <span class="op">+</span></span>
+<span id="cb56-3"><a href="#cb56-3"></a><span class="st">                      </span><span class="kw">geom_area</span>(<span class="dt">stat=</span><span class="st">&quot;bin&quot;</span>, <span class="dt">bins =</span> <span class="dv">30</span>) <span class="op">+</span></span>
+<span id="cb56-4"><a href="#cb56-4"></a><span class="st">                      </span><span class="kw">scale_x_date</span>(<span class="dt">date_breaks =</span> <span class="st">&quot;3 month&quot;</span>,</span>
+<span id="cb56-5"><a href="#cb56-5"></a>                      <span class="dt">limits =</span> <span class="kw">c</span>(<span class="kw">min</span>(dateVec), <span class="kw">max</span>(dateVec)),</span>
+<span id="cb56-6"><a href="#cb56-6"></a>                      <span class="dt">expand=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>)) <span class="op">+</span></span>
+<span id="cb56-7"><a href="#cb56-7"></a><span class="st">                      </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust=</span><span class="dv">1</span>)) </span></code></pre></div>
+<p><img src="tidytuesday_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a>summarytools<span class="op">::</span><span class="kw">freq</span>(combo_new<span class="op">$</span>program_desc, <span class="dt">order =</span> <span class="st">&quot;freq&quot;</span>)</span></code></pre></div>
+<pre><code>## Frequencies  
+## 
+##                                                          Freq   % Valid   % Valid Cum.   % Total   % Total Cum.
+## ---------------------------------------------------- -------- --------- -------------- --------- --------------
+##                                        Labor Studies    14084     10.95          10.95     10.95          10.95
+##                                     Public Economics    13967     10.86          21.82     10.86          21.82
+##                     Economic Fluctuations and Growth    13113     10.20          32.02     10.20          32.02
+##             International Finance and Macroeconomics     8570      6.67          38.68      6.67          38.68
+##                   International Trade and Investment     7125      5.54          44.23      5.54          44.23
+##                                   Monetary Economics     7121      5.54          49.76      5.54          49.76
+##                                        Asset Pricing     6804      5.29          55.06      5.29          55.06
+##                                     Health Economics     6671      5.19          60.25      5.19          60.25
+##                                    Corporate Finance     6153      4.79          65.03      4.79          65.03
+##       Productivity, Innovation, and Entrepreneurship     6084      4.73          69.76      4.73          69.76
+##                                          Health Care     4678      3.64          73.40      3.64          73.40
+##                                             Children     4502      3.50          76.90      3.50          76.90
+##                              Industrial Organization     4492      3.49          80.40      3.49          80.40
+##                               Economics of Education     4311      3.35          83.75      3.35          83.75
+##                                   Economics of Aging     4237      3.30          87.05      3.30          87.05
+##                                Development Economics     3849      2.99          90.04      2.99          90.04
+##                                  Political Economics     3557      2.77          92.81      2.77          92.81
+##                  Development of the American Economy     3370      2.62          95.43      2.62          95.43
+##                     Environment and Energy Economics     3084      2.40          97.83      2.40          97.83
+##                                    Law and Economics     2793      2.17         100.00      2.17         100.00
+##                                                 &lt;NA&gt;        0                               0.00         100.00
+##                                                Total   128565    100.00         100.00    100.00         100.00</code></pre>
 </div>
 
 

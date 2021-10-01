@@ -146,6 +146,7 @@ coul <- colorRampPalette(coul)(25)
 program.data <- combo_new %>% 
                   count(program_desc)
 pie(x = program.data$n, label = program.data$program_desc,  border="white", col=coul)
+pie
 ```
 
 The frequency table shows that top 3 most frequently published programs are "Labor Studies", "Public Economics" and "Economic Fluctuations and Growth".
@@ -237,3 +238,29 @@ reces.period.new %>% ggplot(aes(x = date, fill = program_desc )) +
                       theme(axis.text.x = element_text(angle = 45, hjust=1)) 
 ```
 
+It's a bit difficult to see the pattern with so many categories. Let's focus on the program subcategories within Macro or International studies. 
+
+```{r}
+reces.period.new %>% filter(program_category == "Macro/International") %>%
+                      ggplot(aes(x = date, fill = program_desc )) +
+                      geom_area(stat="bin", bins = 30) +
+                      scale_x_date(date_breaks = "3 month",
+                      limits = c(min(dateVec), max(dateVec)),
+                      expand=c(0,0)) +
+                      theme(axis.text.x = element_text(angle = 45, hjust=1)) 
+
+```
+
+Apparently, economic fluctuations and growth is a major focus during these 5 years, and it looks like that this upward trend will continue. Now, I'm curious to know if that is true. I am gonna plot the same graph but extend to all years.  
+
+# Trend in number of published macroencomomics studies by subcategories over time 
+```{r}
+combo_new %>% 
+  mutate(date = make_date(year, month)) %>%
+  filter(program_category == "Macro/International") %>%
+                      ggplot(aes(x = year, fill = program_desc )) +
+                      geom_area(stat="bin", bins = 30) +
+                      theme(axis.text.x = element_text(angle = 45, hjust=1)) 
+```
+
+Based on the plotted graph, there is indeed an increasing trend in number of macroenconomics papers concerning the economic fluctuation and growth over time. 
