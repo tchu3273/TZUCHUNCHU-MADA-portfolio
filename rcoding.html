@@ -347,6 +347,23 @@ $(document).ready(function () {
     <li>
       <a href="./tidytuesday2.html">Tidy Tuesday 2</a>
     </li>
+    <li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Influenza Data Analysis Project</a>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <a href="./exploration.html">Exploratory Data Analysis</a>
+        </li>
+        <li>
+          <a href="./basicanalysisscript.html">Basic Statistical Models</a>
+        </li>
+        <li>
+          <a href="./evaluationscript.html">Model Fitting Evaluation</a>
+        </li>
+        <li>
+          <a href="./MLModelscript.html">Machine Learning Models</a>
+        </li>
+      </ul>
+    </li>
   </ul>
 </li>
       </ul>
@@ -674,85 +691,84 @@ $(document).ready(function () {
 <p>I am interested in seeing a similar analysis to what we have already done with the Africa data, but this time apply it to other continents!</p>
 <p>I will use one additional package, <code>broom</code>, to help present my output, so I’ll load that now.</p>
 <div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a><span class="kw">library</span>(broom)</span></code></pre></div>
-<pre><code>## Warning: package &#39;broom&#39; was built under R version 4.0.5</code></pre>
 <p>First, I want to visualize the relationship between infant mortality and life expectancy, and I’ll use colors to differentiate between the continents.</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a><span class="co"># Create an object with just the infant mortality, life expectancy, and continent data</span></span>
-<span id="cb41-2"><a href="#cb41-2"></a>v1smh &lt;-<span class="st"> </span></span>
-<span id="cb41-3"><a href="#cb41-3"></a><span class="st">  </span><span class="kw">select</span>(gapminder, infant_mortality, life_expectancy, continent)</span>
-<span id="cb41-4"><a href="#cb41-4"></a></span>
-<span id="cb41-5"><a href="#cb41-5"></a><span class="co"># Plot the data with different colors being different continents</span></span>
-<span id="cb41-6"><a href="#cb41-6"></a><span class="kw">ggplot</span>(<span class="dt">data =</span> v1smh, <span class="kw">aes</span>(infant_mortality, life_expectancy, <span class="dt">color =</span> continent)) <span class="op">+</span></span>
-<span id="cb41-7"><a href="#cb41-7"></a><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></span>
-<span id="cb41-8"><a href="#cb41-8"></a><span class="st">  </span><span class="kw">geom_smooth</span>()  </span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a><span class="co"># Create an object with just the infant mortality, life expectancy, and continent data</span></span>
+<span id="cb40-2"><a href="#cb40-2"></a>v1smh &lt;-<span class="st"> </span></span>
+<span id="cb40-3"><a href="#cb40-3"></a><span class="st">  </span><span class="kw">select</span>(gapminder, infant_mortality, life_expectancy, continent)</span>
+<span id="cb40-4"><a href="#cb40-4"></a></span>
+<span id="cb40-5"><a href="#cb40-5"></a><span class="co"># Plot the data with different colors being different continents</span></span>
+<span id="cb40-6"><a href="#cb40-6"></a><span class="kw">ggplot</span>(<span class="dt">data =</span> v1smh, <span class="kw">aes</span>(infant_mortality, life_expectancy, <span class="dt">color =</span> continent)) <span class="op">+</span></span>
+<span id="cb40-7"><a href="#cb40-7"></a><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></span>
+<span id="cb40-8"><a href="#cb40-8"></a><span class="st">  </span><span class="kw">geom_smooth</span>()  </span></code></pre></div>
 <pre><code>## `geom_smooth()` using method = &#39;gam&#39; and formula &#39;y ~ s(x, bs = &quot;cs&quot;)&#39;</code></pre>
 <pre><code>## Warning: Removed 1453 rows containing non-finite values (stat_smooth).</code></pre>
 <pre><code>## Warning: Removed 1453 rows containing missing values (geom_point).</code></pre>
 <p><img src="rcoding_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
 <p>This is pretty messy, and doesn’t show much, so I want to try and visualize it a different way.</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="co"># Plotting the data the same way, this time with different continents each having their own plots </span></span>
-<span id="cb45-2"><a href="#cb45-2"></a><span class="kw">ggplot</span>(<span class="dt">data =</span> v1smh, <span class="kw">aes</span>(infant_mortality, life_expectancy)) <span class="op">+</span></span>
-<span id="cb45-3"><a href="#cb45-3"></a><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></span>
-<span id="cb45-4"><a href="#cb45-4"></a><span class="st">  </span><span class="kw">geom_smooth</span>() <span class="op">+</span></span>
-<span id="cb45-5"><a href="#cb45-5"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>continent)</span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="co"># Plotting the data the same way, this time with different continents each having their own plots </span></span>
+<span id="cb44-2"><a href="#cb44-2"></a><span class="kw">ggplot</span>(<span class="dt">data =</span> v1smh, <span class="kw">aes</span>(infant_mortality, life_expectancy)) <span class="op">+</span></span>
+<span id="cb44-3"><a href="#cb44-3"></a><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></span>
+<span id="cb44-4"><a href="#cb44-4"></a><span class="st">  </span><span class="kw">geom_smooth</span>() <span class="op">+</span></span>
+<span id="cb44-5"><a href="#cb44-5"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>continent)</span></code></pre></div>
 <pre><code>## `geom_smooth()` using method = &#39;gam&#39; and formula &#39;y ~ s(x, bs = &quot;cs&quot;)&#39;</code></pre>
 <pre><code>## Warning: Removed 1453 rows containing non-finite values (stat_smooth).</code></pre>
 <pre><code>## Warning: Removed 1453 rows containing missing values (geom_point).</code></pre>
 <p><img src="rcoding_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
 <p>This is a little more clear, and shows the same basic trend (which we would expect) - as infant mortality increases, life expectancy decreases. One noticible difference between the continents is Africa and Asia seem to have increased infant mortality as compared to the others.</p>
 <p>Now I’ll do the same thing with the population and life expectancy.</p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a><span class="co">#Create another object, now with population instead of infant mortality </span></span>
-<span id="cb49-2"><a href="#cb49-2"></a>v2smh &lt;-<span class="st"> </span></span>
-<span id="cb49-3"><a href="#cb49-3"></a><span class="st">  </span><span class="kw">select</span>(gapminder, population, life_expectancy, continent)</span>
-<span id="cb49-4"><a href="#cb49-4"></a></span>
-<span id="cb49-5"><a href="#cb49-5"></a><span class="co"># Plot the data with different colors being different continents, with population on a log scale </span></span>
-<span id="cb49-6"><a href="#cb49-6"></a><span class="kw">ggplot</span>(<span class="dt">data =</span> v2smh, <span class="kw">aes</span>(population, life_expectancy, <span class="dt">color =</span> continent)) <span class="op">+</span></span>
-<span id="cb49-7"><a href="#cb49-7"></a><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">trans =</span> <span class="st">&#39;log10&#39;</span>) <span class="op">+</span></span>
-<span id="cb49-8"><a href="#cb49-8"></a><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></span>
-<span id="cb49-9"><a href="#cb49-9"></a><span class="st">  </span><span class="kw">geom_smooth</span>()  </span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a><span class="co">#Create another object, now with population instead of infant mortality </span></span>
+<span id="cb48-2"><a href="#cb48-2"></a>v2smh &lt;-<span class="st"> </span></span>
+<span id="cb48-3"><a href="#cb48-3"></a><span class="st">  </span><span class="kw">select</span>(gapminder, population, life_expectancy, continent)</span>
+<span id="cb48-4"><a href="#cb48-4"></a></span>
+<span id="cb48-5"><a href="#cb48-5"></a><span class="co"># Plot the data with different colors being different continents, with population on a log scale </span></span>
+<span id="cb48-6"><a href="#cb48-6"></a><span class="kw">ggplot</span>(<span class="dt">data =</span> v2smh, <span class="kw">aes</span>(population, life_expectancy, <span class="dt">color =</span> continent)) <span class="op">+</span></span>
+<span id="cb48-7"><a href="#cb48-7"></a><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">trans =</span> <span class="st">&#39;log10&#39;</span>) <span class="op">+</span></span>
+<span id="cb48-8"><a href="#cb48-8"></a><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></span>
+<span id="cb48-9"><a href="#cb48-9"></a><span class="st">  </span><span class="kw">geom_smooth</span>()  </span></code></pre></div>
 <pre><code>## `geom_smooth()` using method = &#39;gam&#39; and formula &#39;y ~ s(x, bs = &quot;cs&quot;)&#39;</code></pre>
 <pre><code>## Warning: Removed 185 rows containing non-finite values (stat_smooth).</code></pre>
 <pre><code>## Warning: Removed 185 rows containing missing values (geom_point).</code></pre>
 <p><img src="rcoding_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
 <p>Again, this is a MESS. Let’s try it again.</p>
-<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a><span class="co"># Plot life expectancy against log population</span></span>
-<span id="cb53-2"><a href="#cb53-2"></a><span class="kw">ggplot</span>(<span class="dt">data =</span> v2smh, <span class="kw">aes</span>(population, life_expectancy)) <span class="op">+</span></span>
-<span id="cb53-3"><a href="#cb53-3"></a><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">trans =</span> <span class="st">&#39;log10&#39;</span>) <span class="op">+</span></span>
-<span id="cb53-4"><a href="#cb53-4"></a><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></span>
-<span id="cb53-5"><a href="#cb53-5"></a><span class="st">  </span><span class="kw">geom_smooth</span>() <span class="op">+</span></span>
-<span id="cb53-6"><a href="#cb53-6"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>continent) <span class="op">+</span></span>
-<span id="cb53-7"><a href="#cb53-7"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&#39;Population (log scale)&#39;</span>) <span class="op">+</span></span>
-<span id="cb53-8"><a href="#cb53-8"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&#39;Life Expectancy&#39;</span>) </span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a><span class="co"># Plot life expectancy against log population</span></span>
+<span id="cb52-2"><a href="#cb52-2"></a><span class="kw">ggplot</span>(<span class="dt">data =</span> v2smh, <span class="kw">aes</span>(population, life_expectancy)) <span class="op">+</span></span>
+<span id="cb52-3"><a href="#cb52-3"></a><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">trans =</span> <span class="st">&#39;log10&#39;</span>) <span class="op">+</span></span>
+<span id="cb52-4"><a href="#cb52-4"></a><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></span>
+<span id="cb52-5"><a href="#cb52-5"></a><span class="st">  </span><span class="kw">geom_smooth</span>() <span class="op">+</span></span>
+<span id="cb52-6"><a href="#cb52-6"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>continent) <span class="op">+</span></span>
+<span id="cb52-7"><a href="#cb52-7"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&#39;Population (log scale)&#39;</span>) <span class="op">+</span></span>
+<span id="cb52-8"><a href="#cb52-8"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&#39;Life Expectancy&#39;</span>) </span></code></pre></div>
 <pre><code>## `geom_smooth()` using method = &#39;gam&#39; and formula &#39;y ~ s(x, bs = &quot;cs&quot;)&#39;</code></pre>
 <pre><code>## Warning: Removed 185 rows containing non-finite values (stat_smooth).</code></pre>
 <pre><code>## Warning: Removed 185 rows containing missing values (geom_point).</code></pre>
 <p><img src="rcoding_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
 <p>Definitely more readable, but as with our first run-through on the analysis, there doesn’t seem to be a true trend. I’m going to focus on this for an actual analysis.</p>
 <p>First I want to see if there are any years that are missing data, so that I can choose one year to focus on without missing data.</p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a><span class="co"># Create object that only contains missing population information according to year and continent </span></span>
-<span id="cb57-2"><a href="#cb57-2"></a>whatsmissing &lt;-<span class="st"> </span></span>
-<span id="cb57-3"><a href="#cb57-3"></a><span class="st">  </span>gapminder <span class="op">%&gt;%</span></span>
-<span id="cb57-4"><a href="#cb57-4"></a><span class="st">  </span><span class="kw">select</span>(year, population, continent) <span class="op">%&gt;%</span></span>
-<span id="cb57-5"><a href="#cb57-5"></a><span class="st">  </span><span class="kw">filter</span>(<span class="kw">is.na</span>(population))</span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a><span class="co"># Create object that only contains missing population information according to year and continent </span></span>
+<span id="cb56-2"><a href="#cb56-2"></a>whatsmissing &lt;-<span class="st"> </span></span>
+<span id="cb56-3"><a href="#cb56-3"></a><span class="st">  </span>gapminder <span class="op">%&gt;%</span></span>
+<span id="cb56-4"><a href="#cb56-4"></a><span class="st">  </span><span class="kw">select</span>(year, population, continent) <span class="op">%&gt;%</span></span>
+<span id="cb56-5"><a href="#cb56-5"></a><span class="st">  </span><span class="kw">filter</span>(<span class="kw">is.na</span>(population))</span></code></pre></div>
 <p>2016 appears to be the only year with missing population data, so for consistency’s sake, I’ll use the year 2000 again.</p>
-<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a><span class="co">#Create an object containing population, life expectancy, continent, and year data, and then narrow that down to only data from the year 2000 </span></span>
-<span id="cb58-2"><a href="#cb58-2"></a>poplife2000 &lt;-<span class="st"> </span></span>
-<span id="cb58-3"><a href="#cb58-3"></a><span class="st">  </span><span class="kw">select</span>(gapminder, population, life_expectancy, continent, year) <span class="op">%&gt;%</span></span>
-<span id="cb58-4"><a href="#cb58-4"></a><span class="st">  </span><span class="kw">filter</span>(year <span class="op">==</span><span class="st"> </span><span class="dv">2000</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a><span class="co">#Create an object containing population, life expectancy, continent, and year data, and then narrow that down to only data from the year 2000 </span></span>
+<span id="cb57-2"><a href="#cb57-2"></a>poplife2000 &lt;-<span class="st"> </span></span>
+<span id="cb57-3"><a href="#cb57-3"></a><span class="st">  </span><span class="kw">select</span>(gapminder, population, life_expectancy, continent, year) <span class="op">%&gt;%</span></span>
+<span id="cb57-4"><a href="#cb57-4"></a><span class="st">  </span><span class="kw">filter</span>(year <span class="op">==</span><span class="st"> </span><span class="dv">2000</span>)</span></code></pre></div>
 <p>Now I’ll recreate the plots with the year 2000 data.</p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a><span class="co">#Plot life expectancy against log population for the year 2000</span></span>
-<span id="cb59-2"><a href="#cb59-2"></a><span class="kw">ggplot</span>(<span class="dt">data =</span> poplife2000, <span class="kw">aes</span>(population, life_expectancy)) <span class="op">+</span></span>
-<span id="cb59-3"><a href="#cb59-3"></a><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">trans =</span> <span class="st">&#39;log10&#39;</span>) <span class="op">+</span></span>
-<span id="cb59-4"><a href="#cb59-4"></a><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></span>
-<span id="cb59-5"><a href="#cb59-5"></a><span class="st">  </span><span class="kw">geom_smooth</span>() <span class="op">+</span></span>
-<span id="cb59-6"><a href="#cb59-6"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>continent) <span class="op">+</span></span>
-<span id="cb59-7"><a href="#cb59-7"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&#39;Population (log scale)&#39;</span>) <span class="op">+</span></span>
-<span id="cb59-8"><a href="#cb59-8"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&#39;Life Expectancy&#39;</span>) </span></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a><span class="co">#Plot life expectancy against log population for the year 2000</span></span>
+<span id="cb58-2"><a href="#cb58-2"></a><span class="kw">ggplot</span>(<span class="dt">data =</span> poplife2000, <span class="kw">aes</span>(population, life_expectancy)) <span class="op">+</span></span>
+<span id="cb58-3"><a href="#cb58-3"></a><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">trans =</span> <span class="st">&#39;log10&#39;</span>) <span class="op">+</span></span>
+<span id="cb58-4"><a href="#cb58-4"></a><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></span>
+<span id="cb58-5"><a href="#cb58-5"></a><span class="st">  </span><span class="kw">geom_smooth</span>() <span class="op">+</span></span>
+<span id="cb58-6"><a href="#cb58-6"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>continent) <span class="op">+</span></span>
+<span id="cb58-7"><a href="#cb58-7"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&#39;Population (log scale)&#39;</span>) <span class="op">+</span></span>
+<span id="cb58-8"><a href="#cb58-8"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&#39;Life Expectancy&#39;</span>) </span></code></pre></div>
 <pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
 <p><img src="rcoding_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
 <p>Less cluttered, but not super clear. I’ll run a simple linear regression to see if there’s any significant relationship overall.</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a><span class="co"># Fit a simple linear model with population and life expectancy across all continents </span></span>
-<span id="cb61-2"><a href="#cb61-2"></a>fitall &lt;-<span class="st"> </span><span class="kw">lm</span>(life_expectancy <span class="op">~</span><span class="st"> </span>population, <span class="dt">data =</span> poplife2000)</span>
-<span id="cb61-3"><a href="#cb61-3"></a><span class="kw">summary</span>(fitall)</span></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a><span class="co"># Fit a simple linear model with population and life expectancy across all continents </span></span>
+<span id="cb60-2"><a href="#cb60-2"></a>fitall &lt;-<span class="st"> </span><span class="kw">lm</span>(life_expectancy <span class="op">~</span><span class="st"> </span>population, <span class="dt">data =</span> poplife2000)</span>
+<span id="cb60-3"><a href="#cb60-3"></a><span class="kw">summary</span>(fitall)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = life_expectancy ~ population, data = poplife2000)
@@ -771,21 +787,21 @@ $(document).ready(function () {
 ## Residual standard error: 9.613 on 183 degrees of freedom
 ## Multiple R-squared:  1.734e-07,  Adjusted R-squared:  -0.005464 
 ## F-statistic: 3.173e-05 on 1 and 183 DF,  p-value: 0.9955</code></pre>
-<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a><span class="kw">tidy</span>(fitall)</span></code></pre></div>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a><span class="kw">tidy</span>(fitall)</span></code></pre></div>
 <pre><code>## # A tibble: 2 x 5
 ##   term        estimate     std.error statistic   p.value
 ##   &lt;chr&gt;          &lt;dbl&gt;         &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
 ## 1 (Intercept) 6.78e+ 1 0.730          92.8     7.42e-156
 ## 2 population  3.20e-11 0.00000000568   0.00563 9.96e-  1</code></pre>
 <p>If we look at the relationship overall, there is <em>definitely</em> no significant relationship here. What if we take it to individual continents?</p>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a><span class="co"># Create object with just Africa from year 2000 data</span></span>
-<span id="cb65-2"><a href="#cb65-2"></a>afr2000 &lt;-</span>
-<span id="cb65-3"><a href="#cb65-3"></a><span class="st">  </span>poplife2000 <span class="op">%&gt;%</span></span>
-<span id="cb65-4"><a href="#cb65-4"></a><span class="st">  </span><span class="kw">filter</span>(continent <span class="op">==</span><span class="st"> &quot;Africa&quot;</span>) </span>
-<span id="cb65-5"><a href="#cb65-5"></a></span>
-<span id="cb65-6"><a href="#cb65-6"></a><span class="co"># Fit simple linear model with population and life expectancy for Africa </span></span>
-<span id="cb65-7"><a href="#cb65-7"></a>fitafr &lt;-<span class="st"> </span><span class="kw">lm</span>(life_expectancy <span class="op">~</span><span class="st"> </span>population, <span class="dt">data =</span> afr2000)</span>
-<span id="cb65-8"><a href="#cb65-8"></a><span class="kw">summary</span>(fitafr)</span></code></pre></div>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1"></a><span class="co"># Create object with just Africa from year 2000 data</span></span>
+<span id="cb64-2"><a href="#cb64-2"></a>afr2000 &lt;-</span>
+<span id="cb64-3"><a href="#cb64-3"></a><span class="st">  </span>poplife2000 <span class="op">%&gt;%</span></span>
+<span id="cb64-4"><a href="#cb64-4"></a><span class="st">  </span><span class="kw">filter</span>(continent <span class="op">==</span><span class="st"> &quot;Africa&quot;</span>) </span>
+<span id="cb64-5"><a href="#cb64-5"></a></span>
+<span id="cb64-6"><a href="#cb64-6"></a><span class="co"># Fit simple linear model with population and life expectancy for Africa </span></span>
+<span id="cb64-7"><a href="#cb64-7"></a>fitafr &lt;-<span class="st"> </span><span class="kw">lm</span>(life_expectancy <span class="op">~</span><span class="st"> </span>population, <span class="dt">data =</span> afr2000)</span>
+<span id="cb64-8"><a href="#cb64-8"></a><span class="kw">summary</span>(fitafr)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = life_expectancy ~ population, data = afr2000)
@@ -804,20 +820,20 @@ $(document).ready(function () {
 ## Residual standard error: 8.524 on 49 degrees of freedom
 ## Multiple R-squared:  0.005176,   Adjusted R-squared:  -0.01513 
 ## F-statistic: 0.2549 on 1 and 49 DF,  p-value: 0.6159</code></pre>
-<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a><span class="kw">tidy</span>(fitafr)</span></code></pre></div>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1"></a><span class="kw">tidy</span>(fitafr)</span></code></pre></div>
 <pre><code>## # A tibble: 2 x 5
 ##   term             estimate    std.error statistic  p.value
 ##   &lt;chr&gt;               &lt;dbl&gt;        &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
 ## 1 (Intercept) 55.9          1.47            38.1   4.51e-38
 ## 2 population   0.0000000276 0.0000000546     0.505 6.16e- 1</code></pre>
-<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a><span class="co"># Create object with just Americas from year 2000 data</span></span>
-<span id="cb69-2"><a href="#cb69-2"></a>ame2000 &lt;-</span>
-<span id="cb69-3"><a href="#cb69-3"></a><span class="st">  </span>poplife2000 <span class="op">%&gt;%</span></span>
-<span id="cb69-4"><a href="#cb69-4"></a><span class="st">  </span><span class="kw">filter</span>(continent <span class="op">==</span><span class="st"> &quot;Americas&quot;</span>) </span>
-<span id="cb69-5"><a href="#cb69-5"></a></span>
-<span id="cb69-6"><a href="#cb69-6"></a><span class="co"># Fit simple linear model with population and life expectancy for Americas </span></span>
-<span id="cb69-7"><a href="#cb69-7"></a>fitame &lt;-<span class="st"> </span><span class="kw">lm</span>(life_expectancy <span class="op">~</span><span class="st"> </span>population, <span class="dt">data =</span> ame2000)</span>
-<span id="cb69-8"><a href="#cb69-8"></a><span class="kw">summary</span>(fitame)</span></code></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1"></a><span class="co"># Create object with just Americas from year 2000 data</span></span>
+<span id="cb68-2"><a href="#cb68-2"></a>ame2000 &lt;-</span>
+<span id="cb68-3"><a href="#cb68-3"></a><span class="st">  </span>poplife2000 <span class="op">%&gt;%</span></span>
+<span id="cb68-4"><a href="#cb68-4"></a><span class="st">  </span><span class="kw">filter</span>(continent <span class="op">==</span><span class="st"> &quot;Americas&quot;</span>) </span>
+<span id="cb68-5"><a href="#cb68-5"></a></span>
+<span id="cb68-6"><a href="#cb68-6"></a><span class="co"># Fit simple linear model with population and life expectancy for Americas </span></span>
+<span id="cb68-7"><a href="#cb68-7"></a>fitame &lt;-<span class="st"> </span><span class="kw">lm</span>(life_expectancy <span class="op">~</span><span class="st"> </span>population, <span class="dt">data =</span> ame2000)</span>
+<span id="cb68-8"><a href="#cb68-8"></a><span class="kw">summary</span>(fitame)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = life_expectancy ~ population, data = ame2000)
@@ -836,20 +852,20 @@ $(document).ready(function () {
 ## Residual standard error: 4.027 on 34 degrees of freedom
 ## Multiple R-squared:  0.03986,    Adjusted R-squared:  0.01162 
 ## F-statistic: 1.411 on 1 and 34 DF,  p-value: 0.2431</code></pre>
-<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1"></a><span class="kw">tidy</span>(fitame)</span></code></pre></div>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1"></a><span class="kw">tidy</span>(fitame)</span></code></pre></div>
 <pre><code>## # A tibble: 2 x 5
 ##   term             estimate    std.error statistic  p.value
 ##   &lt;chr&gt;               &lt;dbl&gt;        &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
 ## 1 (Intercept) 72.1          0.729            98.8  2.06e-43
 ## 2 population   0.0000000145 0.0000000122      1.19 2.43e- 1</code></pre>
-<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1"></a><span class="co"># Create object with just Asia from year 2000 data</span></span>
-<span id="cb73-2"><a href="#cb73-2"></a>asi2000 &lt;-</span>
-<span id="cb73-3"><a href="#cb73-3"></a><span class="st">  </span>poplife2000 <span class="op">%&gt;%</span></span>
-<span id="cb73-4"><a href="#cb73-4"></a><span class="st">  </span><span class="kw">filter</span>(continent <span class="op">==</span><span class="st"> &quot;Asia&quot;</span>) </span>
-<span id="cb73-5"><a href="#cb73-5"></a></span>
-<span id="cb73-6"><a href="#cb73-6"></a><span class="co"># Fit simple linear model with population and life expectancy for Asia </span></span>
-<span id="cb73-7"><a href="#cb73-7"></a>fitasi &lt;-<span class="st"> </span><span class="kw">lm</span>(life_expectancy <span class="op">~</span><span class="st"> </span>population, <span class="dt">data =</span> asi2000)</span>
-<span id="cb73-8"><a href="#cb73-8"></a><span class="kw">summary</span>(fitasi)</span></code></pre></div>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1"></a><span class="co"># Create object with just Asia from year 2000 data</span></span>
+<span id="cb72-2"><a href="#cb72-2"></a>asi2000 &lt;-</span>
+<span id="cb72-3"><a href="#cb72-3"></a><span class="st">  </span>poplife2000 <span class="op">%&gt;%</span></span>
+<span id="cb72-4"><a href="#cb72-4"></a><span class="st">  </span><span class="kw">filter</span>(continent <span class="op">==</span><span class="st"> &quot;Asia&quot;</span>) </span>
+<span id="cb72-5"><a href="#cb72-5"></a></span>
+<span id="cb72-6"><a href="#cb72-6"></a><span class="co"># Fit simple linear model with population and life expectancy for Asia </span></span>
+<span id="cb72-7"><a href="#cb72-7"></a>fitasi &lt;-<span class="st"> </span><span class="kw">lm</span>(life_expectancy <span class="op">~</span><span class="st"> </span>population, <span class="dt">data =</span> asi2000)</span>
+<span id="cb72-8"><a href="#cb72-8"></a><span class="kw">summary</span>(fitasi)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = life_expectancy ~ population, data = asi2000)
@@ -868,20 +884,20 @@ $(document).ready(function () {
 ## Residual standard error: 6.058 on 45 degrees of freedom
 ## Multiple R-squared:  0.02901,    Adjusted R-squared:  0.007432 
 ## F-statistic: 1.344 on 1 and 45 DF,  p-value: 0.2524</code></pre>
-<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a><span class="kw">tidy</span>(fitasi)</span></code></pre></div>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1"></a><span class="kw">tidy</span>(fitasi)</span></code></pre></div>
 <pre><code>## # A tibble: 2 x 5
 ##   term        estimate     std.error statistic  p.value
 ##   &lt;chr&gt;          &lt;dbl&gt;         &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
 ## 1 (Intercept)  7.08e+1 0.930             76.2  3.29e-49
 ## 2 population  -4.38e-9 0.00000000378     -1.16 2.52e- 1</code></pre>
-<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a><span class="co"># Create object with just Europe from year 2000 data</span></span>
-<span id="cb77-2"><a href="#cb77-2"></a>eur2000 &lt;-</span>
-<span id="cb77-3"><a href="#cb77-3"></a><span class="st">  </span>poplife2000 <span class="op">%&gt;%</span></span>
-<span id="cb77-4"><a href="#cb77-4"></a><span class="st">  </span><span class="kw">filter</span>(continent <span class="op">==</span><span class="st"> &quot;Europe&quot;</span>) </span>
-<span id="cb77-5"><a href="#cb77-5"></a></span>
-<span id="cb77-6"><a href="#cb77-6"></a><span class="co"># Fit simple linear model with population and life expectancy for Europe </span></span>
-<span id="cb77-7"><a href="#cb77-7"></a>fiteur &lt;-<span class="st"> </span><span class="kw">lm</span>(life_expectancy <span class="op">~</span><span class="st"> </span>population, <span class="dt">data =</span> eur2000)</span>
-<span id="cb77-8"><a href="#cb77-8"></a><span class="kw">summary</span>(fiteur)</span></code></pre></div>
+<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1"></a><span class="co"># Create object with just Europe from year 2000 data</span></span>
+<span id="cb76-2"><a href="#cb76-2"></a>eur2000 &lt;-</span>
+<span id="cb76-3"><a href="#cb76-3"></a><span class="st">  </span>poplife2000 <span class="op">%&gt;%</span></span>
+<span id="cb76-4"><a href="#cb76-4"></a><span class="st">  </span><span class="kw">filter</span>(continent <span class="op">==</span><span class="st"> &quot;Europe&quot;</span>) </span>
+<span id="cb76-5"><a href="#cb76-5"></a></span>
+<span id="cb76-6"><a href="#cb76-6"></a><span class="co"># Fit simple linear model with population and life expectancy for Europe </span></span>
+<span id="cb76-7"><a href="#cb76-7"></a>fiteur &lt;-<span class="st"> </span><span class="kw">lm</span>(life_expectancy <span class="op">~</span><span class="st"> </span>population, <span class="dt">data =</span> eur2000)</span>
+<span id="cb76-8"><a href="#cb76-8"></a><span class="kw">summary</span>(fiteur)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = life_expectancy ~ population, data = eur2000)
@@ -900,20 +916,20 @@ $(document).ready(function () {
 ## Residual standard error: 3.979 on 37 degrees of freedom
 ## Multiple R-squared:  0.03954,    Adjusted R-squared:  0.01358 
 ## F-statistic: 1.523 on 1 and 37 DF,  p-value: 0.2249</code></pre>
-<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1"></a><span class="kw">tidy</span>(fiteur)</span></code></pre></div>
+<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1"></a><span class="kw">tidy</span>(fiteur)</span></code></pre></div>
 <pre><code>## # A tibble: 2 x 5
 ##   term             estimate    std.error statistic  p.value
 ##   &lt;chr&gt;               &lt;dbl&gt;        &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
 ## 1 (Intercept) 75.6          0.759            99.7  1.40e-46
 ## 2 population  -0.0000000273 0.0000000221     -1.23 2.25e- 1</code></pre>
-<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1"></a><span class="co"># Create object with just Oceania from year 2000 data</span></span>
-<span id="cb81-2"><a href="#cb81-2"></a>oci2000 &lt;-</span>
-<span id="cb81-3"><a href="#cb81-3"></a><span class="st">  </span>poplife2000 <span class="op">%&gt;%</span></span>
-<span id="cb81-4"><a href="#cb81-4"></a><span class="st">  </span><span class="kw">filter</span>(continent <span class="op">==</span><span class="st"> &quot;Oceania&quot;</span>) </span>
-<span id="cb81-5"><a href="#cb81-5"></a></span>
-<span id="cb81-6"><a href="#cb81-6"></a><span class="co"># Fit simple linear model with population and life expectancy for Africa </span></span>
-<span id="cb81-7"><a href="#cb81-7"></a>fitoci &lt;-<span class="st"> </span><span class="kw">lm</span>(life_expectancy <span class="op">~</span><span class="st"> </span>population, <span class="dt">data =</span> oci2000)</span>
-<span id="cb81-8"><a href="#cb81-8"></a><span class="kw">summary</span>(fitoci)</span></code></pre></div>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1"></a><span class="co"># Create object with just Oceania from year 2000 data</span></span>
+<span id="cb80-2"><a href="#cb80-2"></a>oci2000 &lt;-</span>
+<span id="cb80-3"><a href="#cb80-3"></a><span class="st">  </span>poplife2000 <span class="op">%&gt;%</span></span>
+<span id="cb80-4"><a href="#cb80-4"></a><span class="st">  </span><span class="kw">filter</span>(continent <span class="op">==</span><span class="st"> &quot;Oceania&quot;</span>) </span>
+<span id="cb80-5"><a href="#cb80-5"></a></span>
+<span id="cb80-6"><a href="#cb80-6"></a><span class="co"># Fit simple linear model with population and life expectancy for Africa </span></span>
+<span id="cb80-7"><a href="#cb80-7"></a>fitoci &lt;-<span class="st"> </span><span class="kw">lm</span>(life_expectancy <span class="op">~</span><span class="st"> </span>population, <span class="dt">data =</span> oci2000)</span>
+<span id="cb80-8"><a href="#cb80-8"></a><span class="kw">summary</span>(fitoci)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = life_expectancy ~ population, data = oci2000)
@@ -932,7 +948,7 @@ $(document).ready(function () {
 ## Residual standard error: 6.678 on 10 degrees of freedom
 ## Multiple R-squared:  0.2175, Adjusted R-squared:  0.1392 
 ## F-statistic: 2.779 on 1 and 10 DF,  p-value: 0.1265</code></pre>
-<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1"></a><span class="kw">tidy</span>(fitoci)</span></code></pre></div>
+<div class="sourceCode" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1"></a><span class="kw">tidy</span>(fitoci)</span></code></pre></div>
 <pre><code>## # A tibble: 2 x 5
 ##   term            estimate   std.error statistic  p.value
 ##   &lt;chr&gt;              &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;

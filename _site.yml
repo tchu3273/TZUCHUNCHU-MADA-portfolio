@@ -21,6 +21,16 @@ navbar:
           href: ./tidytuesday.html
         - text: "Tidy Tuesday 2"
           href: ./tidytuesday2.html
+        - text: "Influenza Data Analysis Project"
+          menu:
+            - text: "Exploratory Data Analysis"
+              href: ./exploration.html
+            - text: "Basic Statistical Models"
+              href: ./basicanalysisscript.html
+            - text: "Model Fitting Evaluation"
+              href: ./evaluationscript.html
+            - text: "Machine Learning Models"
+              href: ./MLModelscript.html
   right:
     - icon: fa-github fa-lg
       href: https://github.com/tchu3273/TZUCHUNCHU-MADA-portfolio        
