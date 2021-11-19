@@ -5,4 +5,814 @@ output:
     toc: FALSE
 ---
 
-To be filled.
+For this week's exercise, I will continue to work on some more tidymodeling using the marble runs dataset. You can find the original data and more information in the [link](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-06-02/readme.md). 
+
+# load required packages
+```{r, message = F, warning = F}
+library(here) #to set path for importing data
+library(skimr)
+library(readr)
+library(dplyr) #for data wrangling and cleaning
+library(tidymodels) # for model fitting
+library(tidyverse) # data wrangling 
+library(dotwhisker)  # for visualizing regression results
+library(lme4) # for fitting multilevel models
+library(gtsummary)
+library(gt)
+library(ggpubr) # for ggarrange function
+library(tidymodels) #for model fitting 
+library(tidyverse) #for data processing 
+library(rsample) #for data splitting 
+library(parsnip)
+library(rpart) # for tree-based model
+library(glmnet) #
+library(ranger) #
+library(dials) # for creating a grid of values
+library(rpart.plot) # for visualizing decision tree
+library(vip) # estimate variable importance based on the model’s structure
+library(ggpubr) # ggarrange
+library(Hmisc)
+library(naniar)
+library(tictoc)
+library(xgboost)
+library(LiblineaR)
+library(finetune)
+library(kableExtra)
+```
+
+# load data
+```{r}
+# Get the Data
+marbles <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-06-02/marbles.csv')
+
+# quick descriptive information about the data
+skimr::skim(marbles)
+
+```
+
+First, let's explore the dataset by looking at the 
+
+# data exploration
+```{r}
+# check data structure
+glimpse(marbles)
+```
+
+
+```{r}
+# descriptive summary table  
+marbles %>% 
+# select only important variables
+  select(2,3,5:13) %>% 
+  tbl_summary() %>% 
+  modify_header(label ~ "**Variable**") %>% 
+  bold_labels()  %>%
+  as_flex_table()
+```
+
+There are 16 races, 8 sites, 32 marble names, 16 teams, 17 different pole positions, 8 different track lengths. Next, I want to examine whether the missing data varies by race sites. 
+
+# Examine missing data 
+```{r}
+# check percentage of missing values in each column by flu season
+aggregate(marbles , by=list(marbles$site), FUN = function(x) { sum(is.na(x))/length(x)*100 })
+
+vis_miss(marbles)
+```
+
+It looks like pole positions and points gained had 50% data missing, and there are some missingness in time in seconds and average lap time. In addition, the last two information were only missing in three sites. 
+
+# Data processing 
+For further analysis, I will remove missing data since there are only less than 10% missing. Both variables, pole and points will be drop from the analysis due to substantial missing data. Let's clean up the data now!
+
+```{r}
+marbles.clean <- 
+marbles %>%
+  # exclude variables that will not be included for analysis as well
+  select(-date, -source, -pole, -points, -notes) %>% 
+  drop_na(time_s, avg_time_lap)
+```
+
+
+In Randy's blogpost, he mentioned that he had to standardize the race times since each race track took a varying amount of time. I will also standardize the data using the same approach. First, I will calculate 
+the average race time for different race and divide individual marble's time by the average. This way, we will get the standardized performance in each race for each marble, checking how better or worse the marble performed compared to that race track.  
+
+```{r}
+marbles.clean <- 
+  marbles.clean %>% 
+  group_by(race) %>% 
+  # average race time for each race
+  mutate(average_race_time = mean(time_s)) %>% 
+  ungroup() %>% 
+  # marble's race time relative to average race time
+  mutate(std_time = time_s/average_race_time) 
+```
+
+# More exploratory data analysis
+```{r}
+# plotting for the continuous outcome, std_time 
+marbles.clean %>% 
+ggplot(aes(x=std_time)) + 
+  geom_histogram(bins = 100) +
+  xlab("Standardized race time for individual marble relative to average race time") +
+  ylab("Frequency") +
+  ggtitle("Histogram of standardized race time") +
+  theme_bw()
+```
+
+We can see that the standardized race time for each marble follows a normal distribution. 
+
+
+Next, I want to know which team performed the best, and whether specific marble ran faster. 
+```{r}
+# boxplot of standardized race time by track team
+marbles.clean %>% 
+  ggplot(aes(x=team_name, y=std_time)) + 
+    geom_boxplot() +
+    xlab("") +
+    ylab("Standardized race time") +
+    theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+    ggtitle("Boxplot of standardized race time by track team")
+```
+
+
+```{r}
+# boxplot of standardized race time by marble
+marbles.clean %>% 
+  ggplot(aes(x=marble_name, y=std_time)) + 
+    geom_boxplot() +
+    xlab("") +
+    ylab("Standardized race time") +
+    theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+    ggtitle("Boxplot of standardized race time by marble")
+```
+
+# ML data modeling
+The main outcome of interest is the standardized race time, and we will fit six candidate predictors in four different ML models to determine their predictive ability. Next, I will create outcome and predictor variables needed for modeling. 
+
+```{r}
+# create variables for modeling
+marbles.final <-
+  marbles.clean %>% 
+  transmute(
+    race   = factor(race),
+    marble = factor(marble_name),
+    team   = factor(team_name),
+    host   = factor(host),
+    track_length_m = as.numeric(track_length_m),
+    number_laps = as.numeric(std_time),
+    std_time = as.numeric(std_time)
+  )
+```
+
+
+
+## Data setup 
+```{r}
+
+# Data Splitting------------------------------------------------------
+#set seed to fix random numbers 
+set.seed(123)
+
+# put 0.7 of data into training set, use BodyTemp as stratification
+data_split <- initial_split( marbles.final, 
+														prop = 0.7,
+														strata = std_time)
+
+# create data frames for training and testing sets 
+train_data <- training(data_split)
+test_data <- testing(data_split)
+
+# create 5-fold cross-validation, 5 times repeated
+folds <- vfold_cv(train_data, v = 5, repeats =5, strata = std_time)
+
+# create recipe fitting BodyTemp to all predictors 
+rec <- recipes::recipe(std_time ~ ., data = train_data)
+
+# create dummy variable for all predictors
+rec_all_pred <- rec %>%
+	#converts characters or factors 
+  step_dummy(all_nominal()) %>%
+	#removes indicator variables that only contain a single unique value
+  step_zv(all_predictors())
+	
+```
+
+
+# Model tuning and fitting
+
+## Decision tree
+I first followed the tidymodels tutorial for training the model using tree regression method, but I got the error of the ""a correlation computation is required, but 'estimate' is constant and has..." when I used dials to search for all tuning combinations to try for each hyperparameter, and the final tree didn't perform well, and only include sneeze as only predictor. I would like to thank Zane for the inspiration, I used "grid_latin_hypercube" for defining a grid of potential parameter values, and the codes ran without any error. 
+
+```{r,  warning=F, message=F}
+# model specification 
+tree_spec <- 
+  decision_tree(
+    cost_complexity = tune(),
+    tree_depth = tune(),
+    min_n = tune() # sets the minimum n to split at any node.
+  ) %>% 
+  set_engine("rpart") %>% 
+  set_mode("regression")
+
+tree_spec
+
+# we will train this specification on several re-sampled data
+tree_wf <- workflow() %>% 
+  add_model(tree_spec) %>% 
+  add_recipe(rec_all_pred)
+
+
+# define a grid of potential parameter values using latin hypercube sampling
+tree_grid <- grid_latin_hypercube(
+  cost_complexity(), tree_depth(), min_n(), size = 10
+)
+
+# Grid search for parameter values
+tree_res <- tree_wf %>% 
+  tune_grid(
+    resamples = folds,
+    grid = tree_grid,
+    metrics = metric_set(rmse),
+    control = control_grid(verbose = TRUE),
+ )
+
+
+# Select single set of hyperparameter values for our best decision tree model
+best_tree <- select_best(tree_res)
+
+# Finalize our workflow with best values
+final_tree_wf <- tree_wf %>% 
+  finalize_workflow(best_tree)
+
+# Fit model to training data
+best_tree_train_fit <- final_tree_wf %>%  
+	fit(data = train_data)
+
+
+png(filename = here::here("tidytuesday2_figures", "tree_algorithms.png"), width = 1200, height = 1000)
+
+rpart.plot::rpart.plot(
+  x = extract_fit_parsnip(best_tree_train_fit)$fit,
+  main = "Final tree-based model",
+  roundint = F,
+  type = 5,
+  digits = 4
+)
+dev.off()
+
+knitr::include_graphics( here::here("tidytuesday2_figures", "tree_algorithms.png"))
+```
+
+```{r}
+# estimate model importance based on the model's structure
+vip_tree <-
+best_tree_train_fit %>% 
+  extract_fit_parsnip() %>% 
+  vip()
+
+vip_tree
+```
+
+Number of laps is the strongest predictor of the race time. 
+
+## Diagnostics plots
+```{r}
+# some more diagnostics
+tree_diagnostics <- 
+  tree_res %>% autoplot()
+
+ggsave(filename = here::here("tidytuesday2_figures", "tree_diagnostics.png"),
+       plot = tree_diagnostics,
+       width = 12, height = 6)
+
+knitr::include_graphics( here::here("tidytuesday2_figures", "tree_diagnostics.png"))
+
+
+# pull predictions and residuals
+tree_train_res <- best_tree_train_fit  %>% 
+  augment(new_data = train_data) %>% 
+         select(.pred, std_time) %>% 
+         mutate(.resid = std_time - .pred)
+
+
+# plot Predictions vs observed values
+p1 <- ggplot(tree_train_res, aes(x = std_time, y = .pred)) +
+  geom_abline(slope = 1, intercept = 0, color = "red", lty = 2) +
+  geom_point() +
+  cowplot::theme_cowplot() +
+  labs(
+    title = "Decision tree: predicted vs observed",
+    x = "Observed",
+    y = "Fitted"
+  )
+
+# Plot model predictions vs residuals
+p2 <- ggplot(tree_train_res, aes(y = .resid, x = .pred)) +
+  geom_hline(yintercept = 0, color = "red", lty = 2) +
+  geom_point() +
+  cowplot::theme_cowplot() +
+  labs(
+    title = "Decision tree: residuals vs fitted",
+    y = "Residuals",
+    x = "Fitted"
+  )
+
+# combine graphs
+tree_panel <- cowplot::plot_grid(p1, p2, labels = c('A', 'B'), label_size = 12, ncol =2)
+
+ggsave(filename = here::here("tidytuesday2_figures", "tree_panel.png"),
+       plot = tree_panel,
+       width = 12, height = 6)
+
+knitr::include_graphics( here::here("tidytuesday2_figures", "tree_panel.png"))
+
+# looking at model performance
+tree_perfomance <- tree_res %>% show_best(n = 1)
+print(tree_perfomance) # rmse: 0.0068
+```
+The RMSE of the regression tree model is small and the predicted vs observed plot looks good. All the data points seem to align with the diagonal line. 
+
+## LASSO model
+```{r,  warning=F, message=F}
+# LASSO model specification 
+lasso_spec <- 
+  linear_reg(
+    penalty = tune(),
+    mixture = 1 # make this LASSO
+  ) %>% 
+  set_engine("glmnet") %>% 
+  set_mode("regression")
+
+lasso_spec
+
+lasso_wf <- workflow() %>% 
+  add_model(lasso_spec) %>% 
+  add_recipe(rec_all_pred)
+
+# only one hyperparameter to tune here, we can set the grid up manually using a one-column # tibble with 30 candidate values
+lasso_grid <- tibble(penalty = 10^seq(-4, -1, length.out = 30))
+
+# use grid search to tune hyperparameters using cross-validation 
+lasso_res <- lasso_wf %>% 
+  tune::tune_grid(
+    resamples = folds,
+    grid = lasso_grid,
+    metrics =  metric_set(rmse),
+    control = control_grid(verbose = TRUE)
+  )
+
+# pull the best tuning parameter values
+best_lasso <- select_best(lasso_res)
+
+# Finalize workflow with best values
+final_lasso_wf <- lasso_wf  %>% 
+  finalize_workflow(best_lasso)
+
+# Fit model to training data
+best_lasso_train_fit <- final_lasso_wf %>%  fit(data = train_data)
+```
+
+## Diagnostics plots
+```{r}
+# LASSO variable trace plot
+x <- best_lasso_train_fit$fit$fit$fit
+plot(x, "lambda")
+```
+
+
+## More diagnostics plots
+```{r}
+# some more diagnostics
+lasso_diagnostics <- 
+lasso_res %>% autoplot()
+
+ggsave(filename = here::here("tidytuesday2_figures", "lasso_diagnostics.png"),
+       plot = lasso_diagnostics,
+       width = 12, height = 6)
+
+knitr::include_graphics( here::here("tidytuesday2_figures", "lasso_diagnostics.png"))
+
+
+# pull predictions and residuals
+lasso_train_res <- best_lasso_train_fit  %>% 
+  augment(new_data = train_data) %>% 
+         select(.pred, std_time) %>% 
+         mutate(.resid = std_time - .pred)
+
+
+# plot Predictions vs observed values
+p1 <- ggplot(lasso_train_res, aes(x = std_time, y = .pred)) +
+  geom_abline(slope = 1, intercept = 0, color = "red", lty = 2) +
+  geom_point() +
+  cowplot::theme_cowplot() +
+  labs(
+    title = "LASSO: predicted vs observed",
+    x = "Observed",
+    y = "Fitted"
+  )
+
+# Plot model predictions vs residuals
+p2 <- ggplot(lasso_train_res, aes(y = .resid, x = .pred)) +
+  geom_hline(yintercept = 0, color = "red", lty = 2) +
+  geom_point() +
+  cowplot::theme_cowplot() +
+  labs(
+    title = "LASSO: residuals vs fitted",
+    y = "Residuals",
+    x = "Fitted"
+  )
+
+# combine graphs
+lasso_panel <- cowplot::plot_grid(p1, p2, labels = c('A', 'B'), label_size = 12, ncol =2)
+
+ggsave(filename = here::here("tidytuesday2_figures", "lasso_panel.png"),
+       plot = lasso_panel,
+       width = 12, height = 6)
+
+knitr::include_graphics( here::here("tidytuesday2_figures", "lasso_panel.png"))
+
+# looking at model performance
+lasso_perfomance <- lasso_res %>% show_best(n = 1)
+print(lasso_perfomance) # rmse: 0.0008
+```
+The RMSE is smaller compared to the single tree model, however the residual plot looks weird.
+
+
+## Random forrest
+```{r,  warning=F, message=F}
+# query number of cores and see how much paralleization that can be done
+cores <- parallel::detectCores()
+cores # 4
+
+# pass information to ranger engine to set up the model
+rf_mod <- 
+  rand_forest(mtry = tune(), min_n = tune(), trees = 1000) %>% 
+  set_engine("ranger", num.threads = cores, importance = "permutation") %>% 
+  set_mode("regression")
+
+# create workflow to bundle model spec and recipe
+rf_wf <- workflow() %>% 
+  add_model(rf_mod) %>% 
+  add_recipe(rec_all_pred)
+
+# show what will be tuned
+rf_mod %>%    
+  parameters()  
+
+# use a space-filling design to tune, with 25 candidate models
+rf_res <- 
+  rf_wf %>% 
+  tune_grid(folds,
+            grid = 25,
+            control = control_grid(save_pred = TRUE),
+            metrics = metric_set(rmse))
+
+# 5 random forest models, out of the 25 candidates:
+rf_res %>% 
+  show_best(metric = "rmse")
+
+# select the best model according to RMSE metric, and the final tuning parameter values are:
+best_rf <- 
+  rf_res %>% 
+  select_best(metric = "rmse")
+
+best_rf
+
+# Finalize workflow with best values
+final_rf_wf <- rf_wf  %>% 
+  finalize_workflow(best_rf)
+
+# Fit model to training data
+best_rf_train_fit <- final_rf_wf %>%  fit(data = train_data)
+
+```
+
+```{r}
+# estimate model importance based on the model's structure
+vip_rf <-
+best_rf_train_fit %>% 
+  extract_fit_parsnip() %>% 
+  vip()
+
+vip_tree
+```
+
+Number of laps is the strongest predictor. 
+
+## Diagnostics plots
+```{r}
+# some more diagnostics
+rf_diagnostics <- 
+rf_res %>% autoplot()
+ggsave(filename = here::here("tidytuesday2_figures", "random_forest_diagnostics.png"),
+       plot = rf_diagnostics,
+       width = 12, height = 6)
+
+knitr::include_graphics( here::here("tidytuesday2_figures", "random_forest_diagnostics.png"))
+
+
+# pull predictions and residuals
+rf_train_res <- best_rf_train_fit  %>% 
+  augment(new_data = train_data) %>% 
+         select(.pred, std_time) %>% 
+         mutate(.resid = std_time - .pred)
+
+
+# plot Predictions vs observed values
+p1 <- ggplot(rf_train_res, aes(x = std_time, y = .pred)) +
+  geom_abline(slope = 1, intercept = 0, color = "red", lty = 2) +
+  geom_point() +
+  cowplot::theme_cowplot() +
+  labs(
+    title = "Random forest: predicted vs observed",
+    x = "Observed",
+    y = "Fitted"
+  )
+
+# Plot model predictions vs residuals
+p2 <- ggplot(rf_train_res, aes(y = .resid, x = .pred)) +
+  geom_hline(yintercept = 0, color = "red", lty = 2) +
+  geom_point() +
+  cowplot::theme_cowplot() +
+  labs(
+    title = "Random forest: residuals vs fitted",
+    y = "Residuals",
+    x = "Fitted"
+  )
+
+# combine graphs
+random_forest_panel <- cowplot::plot_grid(p1, p2, labels = c('A', 'B'), label_size = 12, ncol =2)
+
+ggsave(filename = here::here("tidytuesday2_figures", "random_forest_panel.png"),
+       plot = random_forest_panel,
+       width = 12, height = 6)
+
+knitr::include_graphics( here::here("tidytuesday2_figures", "random_forest_panel.png"))
+
+# looking at model performance
+rf_perfomance <- rf_res %>% show_best(n = 1)
+print(rf_perfomance) # rmse: 0.0059
+```
+The RMSE is larger than LASSO model but smaller than the tree regression model. The predicted vs observed and residual plots look good. 
+
+
+
+
+## Support vector machines
+```{r}
+# model specification 
+svm_spec <- 
+  svm_linear(  
+  cost = tune(), 
+  margin = tune()) %>% 
+  set_engine("LiblineaR") %>% 
+  set_mode("regression") 
+
+
+# create workflow to bundle model spec and recipe
+svm_wf <- workflow() %>% 
+  add_model(svm_spec) %>% 
+  add_recipe(rec_all_pred)
+```
+
+
+## SVM tuning
+
+# fix issue with parallel computing back-end for dopar
+```{r}
+unregister_dopar <- function() {
+  env <- foreach:::.foreachGlobals
+  rm(list=ls(name=env), pos=env)
+}
+```
+
+
+```{r}
+# parallel computing
+doParallel::registerDoParallel()
+
+# # bootstrapping 
+# set.seed(123)
+# iono_rs <- bootstraps(train_data, times = 30)
+
+# finalize the parameter ranges before optimizing 
+svm_parms <- svm_spec  %>%
+  dials::parameters() %>%
+  dials::finalize(train_data %>%  select(-titerincrease))
+
+# Optimization of model parameters via simulated annealing
+svm_res <- svm_wf %>%
+  tune_sim_anneal(
+    resamples = folds,
+    metrics = metric_set(rmse),
+    control = control_sim_anneal(
+      verbose = TRUE,
+      no_improve = 10,
+      radius = c(0.01, 0.25),
+      cooling_coef = 0.01
+    ),
+    iter = 10,
+    param_info = svm_parms
+  )
+ 
+
+# turn off parallel cluster
+doParallel::stopImplicitCluster()
+unregister_dopar()
+# stopCluster(cl)
+```
+
+## Look up model performance during tuning
+```{r}
+# plot of performance for different tuning parameters
+svm_diagnostics <- svm_res %>% autoplot()
+
+ggsave(filename = here::here("tidytuesday2_figures", "svm_diagnostics.png"),
+       plot = svm_diagnostics,
+       width = 12, height = 6)
+knitr::include_graphics( here::here("tidytuesday2_figures", "svm_diagnostics.png"))
+```
+
+
+## SVM model evaluation
+```{r}
+# Select single set of hyperparameter values for our best decision tree model
+best_svm <- svm_res %>%  
+	select_best(metric = "rmse")
+
+# Finalize our workflow with best values
+final_svm_wf <- svm_wf %>% 
+  finalize_workflow(best_svm)
+
+# Fit model to training data
+best_svm_fit_train <- final_svm_wf %>%  
+	fit(data = train_data)
+
+
+# diagnostic plots
+
+# getting predicted outcome and residuals
+svm_train_res <- best_svm_fit_train  %>% 
+  augment(new_data = train_data) %>% 
+         select(.pred, std_time) %>% 
+         mutate(.resid = std_time - .pred)
+
+
+# plot Predictions vs observed values
+p1 <- ggplot(svm_train_res, aes(x = std_time, y = .pred)) +
+  geom_abline(slope = 1, intercept = 0, color = "red", lty = 2) +
+  xlim(-5,10)+
+  ylim(-5,10) +	
+  geom_point() +
+  cowplot::theme_cowplot() +
+  labs(
+    title = "SVM: predicted vs observed",
+    x = "Observed",
+    y = "Fitted"
+  )
+
+# Plot model predictions vs residuals
+p2 <- ggplot(svm_train_res, aes(y = .resid, x = .pred)) +
+  geom_hline(yintercept = 0, color = "red", lty = 2) +
+  geom_point() +
+  cowplot::theme_cowplot() +
+  labs(
+    title = "SVM: residuals vs fitted",
+    y = "Residuals",
+    x = "Fitted"
+  )
+
+# combine graphs
+svm_panel <- cowplot::plot_grid(p1, p2, labels = c('A', 'B'), label_size = 12, ncol =2)
+
+ggsave(filename = here::here("tidytuesday2_figures", "svm_panel.png"),
+       plot = svm_panel,
+       width = 12, height = 6)
+
+knitr::include_graphics( here::here("tidytuesday2_figures", "svm_panel.png"))
+
+# looking at model performance
+svm_perfomance <- svm_res %>% show_best(n = 1)
+print(svm_perfomance) # rmse: 0.0492
+```
+
+The linear SVM model only predicted values of the standardized race time in a very small range, which looks like a single distinct value after rescaling, and the RMSE is the largest among all models so far. I should probably try other kernel SVM models such as polynomial or radical basis function that performs better for nonlinear decision boundary.  
+
+
+
+
+# Null RMSE with standard error
+```{r}
+# Calculate the null RMSE and SE by boostrapping
+res <- numeric(1000)
+for (i in 1:1000) {
+  Bi <- as.numeric(unlist(train_data[sample(1:nrow(train_data), size = nrow(train_data), replace = TRUE), "std_time"]))
+  res[i] <- rmse_vec(
+    truth = Bi, estimate = rep(mean(train_data$std_time), nrow(train_data))
+  )
+}
+null_rmse <- tibble(
+  estimate = rmse_vec(truth = train_data$std_time,
+                      estimate = rep(mean(train_data$std_time), nrow(train_data))),
+  std_err = sd(res)
+)
+
+null_rmse  %>% 
+  dplyr::mutate(across(everything(), ~round(.x, digits = 4))) %>% 
+  knitr::kable(caption = "RMSE and boostrap SE (B = 1000) for the null model.")
+```
+
+
+
+```{r}
+tree_RMSE <- tree_res  %>%  
+  show_best(n = 1) %>%  
+  dplyr::select(estimate = mean, std_err) %>% 
+  dplyr::bind_rows(null_rmse) %>% 
+	dplyr::mutate(
+    model = c("Tree", "Null"),
+    rmse = round(estimate, 2),
+    SE = round(std_err, 4),
+    .keep = "unused"
+  )
+
+svm_RMSE <- svm_res  %>%  
+  show_best(n = 1) %>%  
+  dplyr::transmute(
+    rmse = round(mean, 2),
+    SE = round(std_err, 4),
+    model = "SVM"
+  ) %>%  
+  dplyr::bind_rows(tree_RMSE)
+
+rf_RMSE <- rf_res  %>%  
+  show_best(n = 1) %>%  
+  dplyr::transmute(
+    rmse = round(mean, 2),
+    SE = round(std_err, 4),
+    model = "Random Forest"
+  ) %>%  
+  dplyr::bind_rows(svm_RMSE)
+
+all_RMSE <- lasso_res  %>%  
+  show_best(n = 1) %>%  
+  dplyr::transmute(
+    rmse = round(mean, 2),
+    SE = round(std_err, 4),
+    model = "LASSO"
+  ) %>%  
+  dplyr::bind_rows(rf_RMSE) %>% 
+  gt::gt(caption = "Comparison of RMSE values for all models.")
+
+
+all_RMSE
+
+# save RMSE comparison table 
+rmse_location = here("tidytuesday2_figures", "rmsecomparison.Rds")
+saveRDS(all_RMSE, file = rmse_location)
+```
+
+
+## Model selection
+
+We can see that LASSO had best fit compared to all other models. The predicted vs observed plot looks good, all the data points align well on the diagonal. So, I will fit the chosen LASSO model to the test data and evaluate the performance.
+
+
+## Final evaluation
+```{r}
+# evaluate how model perform on test set
+last_rf_fit <- final_lasso_wf %>% 
+  last_fit(split = data_split, 
+  				 metrics = metric_set(rmse))
+
+last_rf_fit %>% 
+  collect_metrics()
+```
+
+
+```{r}
+# rmse for LASSO model fitting on testing data
+lasso_test_rmse <- collect_metrics(last_rf_fit) %>% 
+  dplyr::select(rmse = .estimate) %>% 
+  dplyr::mutate(data = "testing")
+
+# rmse for LASSO model fitting on training data  
+lasso_RMSE_train <- lasso_res %>% 
+  show_best(n = 1) %>% 
+  dplyr::transmute(
+    rmse = round(mean, 4),
+    SE = round(std_err, 4),
+    model = "LASSO"
+  ) 
+
+lasso_RMSE_train %>% 
+  dplyr::transmute(
+    rmse, data = "training"
+  ) %>% 
+  bind_rows(lasso_test_rmse) %>% 
+  gt::gt(caption = "Comparison of RMSE between traing and testing data using LASSO regression.")
+
+```
+
+The result shows that the final LASSO model fits were similar between training and testing data. 
